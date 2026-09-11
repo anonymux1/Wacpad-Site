@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WacPad — Precision iPad Digitizer Tablet for Mac & Windows</title>
+    <meta name="description" content="Turn your iPad and Apple Pencil into a zero-latency precision drawing tablet for macOS and Windows. 240Hz touch, pressure sensitivity, tilt, and direct USB tunnel.">
+    <style>
+        :root {
+            --bg: #07090e;
+            --card-bg: #0f131d;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.25);
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #1e293b;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 0 1.5rem;
+        }
+        header {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 4rem 0 2rem;
+            text-align: center;
+        }
+        .badge {
+            display: inline-block;
+            background: rgba(56, 189, 248, 0.12);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 0.25rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 1.25rem;
+            background: linear-gradient(135deg, #ffffff 40%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto 2.5rem;
+        }
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 4rem;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.85rem 1.75rem;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #07090e;
+            box-shadow: 0 0 25px var(--accent-glow);
+        }
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        .btn-secondary {
+            background: var(--card-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover {
+            border-color: var(--accent);
+        }
+        .grid {
+            max-width: 1100px;
+            margin: 0 auto 5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 2rem;
+            transition: border-color 0.2s;
+        }
+        .card:hover {
+            border-color: var(--accent);
+        }
+        .card-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        .card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        .card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+        section {
+            max-width: 900px;
+            margin: 0 auto 4rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 2.5rem;
+        }
+        section h2 {
+            font-size: 1.75rem;
+            margin-bottom: 1.25rem;
+            color: var(--accent);
+        }
+        section p, section li {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+        }
+        section ul {
+            padding-left: 1.5rem;
+        }
+        footer {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 3rem 0;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="badge">Next-Gen Digitizer Slate</div>
+        <h1>WacPad for Mac & Windows</h1>
+        <p class="subtitle">Turn your iPad and Apple Pencil into a zero-latency professional drawing tablet with 240Hz coalesced tracking, native pressure sensitivity, and tilt support.</p>
+        <div class="cta-buttons">
+            <a href="https://github.com/anonymux1/WacPad" class="btn btn-primary">View on GitHub</a>
+            <a href="#privacy" class="btn btn-secondary">Privacy Policy</a>
+        </div>
+    </header>
+
+    <div class="grid">
+        <div class="card">
+            <div class="card-icon">⚡</div>
+            <h3>Direct USB Cable Tunnel</h3>
+            <p>Sub-2.0ms round-trip latency via native Apple usbmuxd tunnel (port 8766). No Wi-Fi lag, interference, or dropouts during creative workflows.</p>
+        </div>
+        <div class="card">
+            <div class="card-icon">🖊️</div>
+            <h3>Apple Pencil Precision</h3>
+            <p>Full hardware acceleration for Apple Pencil Gen 1 & 2. 240Hz touch sampling, pressure curves, tilt vectors (X/Y), and roll azimuth.</p>
+        </div>
+        <div class="card">
+            <div class="card-icon">🖥️</div>
+            <h3>Cross-Platform Host</h3>
+            <p>Native kernel pointer injection for Windows 11 / 10 and Quartz CoreGraphics event synthesis for macOS with multi-monitor coordinate mapping.</p>
+        </div>
+    </div>
+
+    <section id="privacy">
+        <h2>Privacy Policy</h2>
+        <p><strong>Effective Date:</strong> September 11, 2026</p>
+        <p>WacPad is committed to protecting your privacy. This policy outlines how information is handled across the WacPad iOS application and desktop companion hosts:</p>
+        <ul>
+            <li><strong>Drawing & Input Data:</strong> All Apple Pencil strokes, pressure dynamics, touch coordinates, and hotkey actions are transmitted exclusively over your private local connection (Direct USB cable or local Wi-Fi). No drawing or keystroke data is ever uploaded to external cloud servers.</li>
+            <li><strong>Advertising:</strong> The free tier of the iOS application may display mobile advertisements provided by ad partners (such as AppLovin MAX). These third-party networks may collect contextual device data (e.g., device model, OS version, IP address, and advertising identifiers if permitted) to deliver and measure ads in compliance with applicable privacy regulations.</li>
+            <li><strong>Pro Licensing:</strong> When activating WacPad Pro, your purchase email and license status are validated via cryptographic verification. We do not store or process payment card details; payments are handled directly by secure payment processors (such as Stripe).</li>
+        </ul>
+        <p>For questions or support, please contact us at <a href="mailto:mohnishk@gmail.com" style="color: var(--accent);">mohnishk@gmail.com</a>.</p>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 WacPad. Developed by <a href="https://github.com/anonymux1">anonymux1</a>. All rights reserved.</p>
+    </footer>
+</body>
+</html>

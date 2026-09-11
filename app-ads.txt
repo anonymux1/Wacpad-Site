@@ -1,0 +1,3 @@
+# WacPad app-ads.txt
+# AppLovin MAX Ad Network
+applovin.com, 00000000, DIRECT, 00000000
