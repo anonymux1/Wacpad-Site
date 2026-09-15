@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07090e">
+  <meta name="robots" content="index, follow">
+  <title>Recover Your WacPad License Key</title>
+  <meta name="description" content="Misplaced your key? Enter your purchase email to retrieve and re-send your cryptographic WacPad Pro license key.">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%3E<text y=%2226%22 font-size=%2224%22>🔍</text></svg>">
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+      <a href="/" class="nav-brand">
+        🖊️ <span>WacPad</span>
+      </a>
+      <a href="/" class="btn btn-secondary" style="padding: 0.4rem 0.9rem; font-size: 0.85rem;">
+        &larr; Back to Home
+      </a>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="success-container" style="text-align: center;">
+      <div class="success-icon">🔍</div>
+      <h2>Recover Your License Key</h2>
+      <p style="color: var(--text-muted); margin: 0.75rem 0 2rem;">
+        Misplaced your key? Enter the email address you used during purchase and we'll retrieve and re-send your cryptographic license key to your inbox.
+      </p>
+
+      <form id="lookupForm" style="text-align: left; max-width: 440px; margin: 0 auto;">
+        <label for="lookupEmail" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.5rem;">
+          Purchase Email Address
+        </label>
+        <input 
+          type="email" 
+          id="lookupEmail" 
+          required 
+          placeholder="your.email@example.com"
+          autocomplete="email"
+          style="width: 100%; padding: 0.85rem 1rem; border-radius: 8px; border: 1px solid var(--card-border); background: #07090e; color: #fff; font-size: 1rem; margin-bottom: 1.25rem;"
+        >
+        <button type="submit" id="lookupSubmitBtn" class="btn btn-pro btn-block">
+          Find My License Key
+        </button>
+      </form>
+
+      <div id="lookupMessage" aria-live="polite" style="display: none; margin-top: 1.5rem; font-size: 0.95rem; line-height: 1.6;"></div>
+
+      <!-- Manage Devices Directly with License Key -->
+      <div id="manageKeySection" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--card-border); text-align: left; max-width: 440px; margin-left: auto; margin-right: auto;">
+        <label for="lookupKey" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.5rem;">
+          Already Have Your License Key?
+        </label>
+        <div style="display: flex; gap: 0.5rem;">
+          <input 
+            type="text" 
+            id="lookupKey" 
+            placeholder="WP1-..."
+            style="flex: 1; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--card-border); background: #07090e; color: #fff; font-size: 0.9rem; font-family: var(--font-mono, monospace);"
+          >
+          <button type="button" id="lookupKeyBtn" class="btn btn-secondary" style="white-space: nowrap; padding: 0.75rem 1rem; font-size: 0.85rem;">
+            Manage Devices
+          </button>
+        </div>
+      </div>
+
+      <!-- Device Management Section -->
+      <div id="deviceManagementSection" style="display: none; margin-top: 2rem; text-align: left; max-width: 480px; margin-left: auto; margin-right: auto;">
+        <div style="border-top: 1px solid var(--card-border); padding-top: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
+            <h3 style="font-size: 1.15rem; color: var(--text-main);">Active Devices (Max 3)</h3>
+            <span id="deviceCountBadge" style="font-size: 0.8rem; background: var(--card-border); padding: 0.2rem 0.6rem; border-radius: 12px; color: var(--accent);">0 / 3 Seats</span>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem;">
+            Need to switch computers? Deactivate any computer below to free up a seat.
+          </p>
+
+          <div id="deviceStatusMsg" style="display: none; margin-bottom: 1rem; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.85rem;"></div>
+
+          <div id="deviceList" style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <!-- Rendered dynamically by lookup.js -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 WacPad. Need assistance? Contact <a href="mailto:mohnishk@gmail.com">mohnishk@gmail.com</a>.</p>
+    </div>
+  </footer>
+
+  <script src="/js/lookup.js"></script>
+</body>
+</html>

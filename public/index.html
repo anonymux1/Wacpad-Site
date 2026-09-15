@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07090e">
+  <meta name="robots" content="index, follow">
+  <title>WacPad — Professional 240Hz iPad Digitizer Slate for Windows & Mac</title>
+  <meta name="description" content="Turn your iPad and Apple Pencil into a zero-latency precision drawing tablet for macOS and Windows. 240Hz touch, pressure sensitivity, Apple Pencil Pro barrel roll, and direct USB tunnel.">
+  <link rel="canonical" href="https://wacpad.com/">
+  <meta property="og:site_name" content="WacPad">
+  <meta property="og:title" content="WacPad — Professional 240Hz iPad Digitizer Tablet">
+  <meta property="og:description" content="Turn your iPad and Apple Pencil into a zero-latency precision drawing tablet for macOS and Windows.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://wacpad.com">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="WacPad — Professional iPad Digitizer Tablet">
+  <meta name="twitter:description" content="240Hz Apple Pencil input, sub-0.5ms USB latency, native Windows Ink.">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%3E<text y=%2226%22 font-size=%2224%22>🖊️</text></svg>">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <header class="navbar">
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+      <a href="/" class="nav-brand">
+        🖊️ <span>WacPad</span>
+      </a>
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle navigation menu" aria-expanded="false">☰</button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="/lookup.html">Recover Key</a></li>
+        <li>
+          <div class="download-dropdown">
+            <button class="btn btn-secondary" id="downloadDropdownBtn" aria-haspopup="true" aria-expanded="false" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+              ⬇️ Download Host
+            </button>
+            <div class="dropdown-menu" id="downloadMenu" role="menu">
+              <a href="https://github.com/anonymux1/WacPad/releases/latest" class="dropdown-item" role="menuitem" target="_blank">
+                <span>🪟 Windows 10/11</span>
+                <small>Installer (.exe)</small>
+              </a>
+              <a href="https://github.com/anonymux1/WacPad/releases/latest" class="dropdown-item" role="menuitem" target="_blank">
+                <span>🍎 macOS 13+</span>
+                <small>Universal (.dmg)</small>
+              </a>
+              <a href="https://github.com/anonymux1/WacPad#2-building--deploying-the-ios-app" class="dropdown-item" role="menuitem" target="_blank">
+                <span>📱 iPadOS Client</span>
+                <small>App Store / IPA</small>
+              </a>
+            </div>
+          </div>
+        </li>
+        <li>
+          <a href="#pricing" class="btn btn-pro" style="padding: 0.5rem 1.15rem; font-size: 0.85rem;">
+            ⭐ Get Pro — $14.99
+          </a>
+        </li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container hero-content">
+      <div class="badge">Next-Gen Creative Hardware Engine</div>
+      <h1>Turn your iPad into a Professional 240Hz Digitizer Tablet</h1>
+      <p>
+        Sub-millisecond latency, screenless graphics tablet & digitizer for Windows 10/11 with native Windows Ink and macOS, Apple Pencil Pro Barrel Roll, and Zero-Config Direct USB Tunneling.
+      </p>
+      <div class="hero-ctas">
+        <a href="#pricing" class="btn btn-pro">⭐ Upgrade to Pro — $14.99</a>
+        <a href="https://github.com/anonymux1/WacPad/releases/latest" class="btn btn-secondary" target="_blank">
+          ⬇️ Download Free Desktop Host
+        </a>
+      </div>
+
+      <!-- Specs Strip -->
+      <div class="specs-strip">
+        <div class="spec-item">
+          <div class="spec-val accent">&lt; 0.5 ms</div>
+          <div class="spec-label">USB Latency</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-val">240 Hz</div>
+          <div class="spec-label">ProMotion Sampling</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-val accent">4,096</div>
+          <div class="spec-label">Pressure Levels</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-val">0° – 359°</div>
+          <div class="spec-label">Pro Barrel Roll</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid -->
+  <section class="container" id="features">
+    <div class="section-title">
+      <h2>Engineered for Demanding Digital Artists</h2>
+      <p>Built completely in high-performance Rust and native Swift with zero lag, zero cloud telemetry, and total privacy.</p>
+    </div>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h3>Zero-Config Direct USB</h3>
+        <p>
+          Sub-0.5ms round-trip latency via native Apple MobileDevice <code style="color: #38bdf8;">usbmuxd</code> tunnel on port 8766. No Wi-Fi congestion, no IP typing, and automatic Wi-Fi standby failover.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🖊️</div>
+        <h3>Apple Pencil Pro Hardware</h3>
+        <p>
+          Full 4,096 hardware pressure levels, tilt projection with altitude math, barrel rotation tracking ($0^\circ \dots 359^\circ$), double-tap tool toggle, and multi-touch gestures.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🖥️</div>
+        <h3>Native Pointer Injection</h3>
+        <p>
+          Direct Win32 kernel <code style="color: #38bdf8;">PT_PEN</code> pointer injection on Windows 10/11 for native Windows Ink support in Photoshop, Clip Studio, and Blender, plus Quartz CoreGraphics on macOS.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📈</div>
+        <h3>Pressure Curve Studio</h3>
+        <p>
+          Interactive cubic Bézier curves with live visualization and presets (Linear, Soft Inking, Firm Precision, S-Curve).
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🖥️🖥️</div>
+        <h3>Multi-Monitor Geometry</h3>
+        <p>
+          Interactive topology editor supporting heterogeneous resolutions, 4K displays, and negative coordinate offsets across any multi-screen workspace.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔒</div>
+        <h3>Offline Cryptographic License</h3>
+        <p>
+          Your Pro license uses embedded HMAC-SHA256 signatures validated 100% offline. No constant internet phone-home, no recurring subscriptions, and zero tracking.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section class="pricing-section" id="pricing">
+    <div class="container">
+      <div class="section-title">
+        <h2>Simple, Transparent Pricing</h2>
+        <p>Start completely free. Upgrade once for lifetime unlimited professional drawing.</p>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- Free Tier -->
+        <div class="pricing-card">
+          <div class="pricing-header">
+            <h3>WacPad Free</h3>
+            <div class="pricing-price">$0 <span class="pricing-period">forever</span></div>
+            <p class="pricing-desc">Everything needed to test latency and draw casually.</p>
+          </div>
+          <ul class="pricing-features">
+            <li><span class="check">✓</span> 240Hz Apple Pencil input tracking</li>
+            <li><span class="check">✓</span> Direct USB & Wi-Fi dual transport</li>
+            <li><span class="check">✓</span> Pressure, tilt, and barrel roll support</li>
+            <li><span class="check">✓</span> Multi-monitor mapping studio</li>
+            <li class="disabled"><span class="cross">✕</span> 30-minute continuous session limit</li>
+            <li class="disabled"><span class="cross">✕</span> Top ad banner on iPad screen</li>
+          </ul>
+          <a href="https://github.com/anonymux1/WacPad/releases/latest" class="btn btn-secondary btn-block" target="_blank">
+            Download Free
+          </a>
+        </div>
+
+        <!-- Pro Tier -->
+        <div class="pricing-card featured">
+          <div class="badge badge-pro pricing-badge">⭐ Lifetime Pro</div>
+          <div class="pricing-header">
+            <h3>WacPad Pro</h3>
+            <div class="pricing-price">$14.99 <span class="pricing-period">one-time lifetime</span></div>
+            <p class="pricing-desc">For digital painters, animators, and concept artists.</p>
+          </div>
+          <ul class="pricing-features">
+            <li><span class="check">✓</span> Full-canvas drawing with zero ads</li>
+            <li><span class="check">✓</span> Unlimited continuous drawing sessions</li>
+            <li><span class="check">✓</span> Offline cryptographic license key</li>
+            <li><span class="check">✓</span> One-time purchase, no subscriptions</li>
+            <li><span class="check">✓</span> Cross-platform for Windows & macOS</li>
+            <li><span class="check">✓</span> All future v2.x updates included</li>
+          </ul>
+          <button id="buyProBtn" class="btn btn-pro btn-block" style="font-size: 1.05rem; padding: 0.9rem;">
+            ⭐ Buy Pro Lifetime License — $14.99
+          </button>
+          <p style="font-size: 0.8rem; color: var(--text-dim); text-align: center; margin-top: 0.75rem;">
+            🔒 Secure checkout via Stripe. Includes automated VAT invoice.
+          </p>
+        </div>
+      </div>
+
+      <p style="text-align: center; margin-top: 2rem; color: var(--text-dim); font-size: 0.9rem;">
+        Already purchased WacPad Pro? <a href="/lookup.html">Recover or re-send your license key &rarr;</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="container" id="faq" style="max-width: 800px; margin-bottom: 6rem;">
+    <div class="section-title">
+      <h2>Frequently Asked Questions</h2>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+      <div class="card" style="padding: 1.5rem 2rem;">
+        <h3 style="font-size: 1.15rem;">How does license activation work?</h3>
+        <p>After completing checkout, you will immediately receive your <code style="color: #38bdf8;">WP1-...</code> license key on screen and in your email. Simply open WacPad Desktop on your PC or Mac, click <strong>Settings</strong> &rarr; <strong>License Status</strong>, paste the key, and click <strong>Activate</strong>. Your connected iPad will instantly unlock the full canvas and remove all session limits.</p>
+      </div>
+
+      <div class="card" style="padding: 1.5rem 2rem;">
+        <h3 style="font-size: 1.15rem;">Does it require an active internet connection to draw?</h3>
+        <p>No! The WacPad Pro license key uses embedded HMAC-SHA256 cryptographic signatures that validate 100% offline. You never need an internet connection to use WacPad once activated.</p>
+      </div>
+
+      <div class="card" style="padding: 1.5rem 2rem;">
+        <h3 style="font-size: 1.15rem;">Can I use my Pro license on both Windows and Mac?</h3>
+        <p>Yes. Your single lifetime license key can be activated on your desktop workstations across Windows 10/11 and macOS.</p>
+      </div>
+
+      <div class="card" style="padding: 1.5rem 2rem;">
+        <h3 style="font-size: 1.15rem;">What happens if I lose my license key?</h3>
+        <p>You can visit our <a href="/lookup.html">License Recovery Page</a> anytime, enter your purchase email, and your license key will be instantly verified and re-sent to your inbox.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p style="margin-bottom: 0.75rem;">
+        &copy; 2026 WacPad Suite. Developed by <a href="https://github.com/anonymux1" target="_blank">anonymux1</a>. All rights reserved.
+      </p>
+      <p style="font-size: 0.85rem;">
+        <a href="https://github.com/anonymux1/WacPad" target="_blank">GitHub Repository</a> &bull;
+        <a href="/lookup.html">License Lookup</a> &bull;
+        <a href="mailto:mohnishk@gmail.com">Contact Support</a>
+      </p>
+    </div>
+  </footer>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>

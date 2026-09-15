@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07090e">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Payment Successful — WacPad Pro License</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%3E<text y=%2226%22 font-size=%2224%22>🎉</text></svg>">
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+      <a href="/" class="nav-brand">
+        🖊️ <span>WacPad</span>
+      </a>
+      <a href="/" class="btn btn-secondary" style="padding: 0.4rem 0.9rem; font-size: 0.85rem;">
+        &larr; Back to Home
+      </a>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="success-container">
+      
+      <!-- Loading State -->
+      <div id="loadingState">
+        <div class="success-icon">⏳</div>
+        <h2>Finalizing your Pro License...</h2>
+        <p style="color: var(--text-muted); margin-top: 0.5rem;">
+          Verifying your secure payment and generating your cryptographic offline license key.
+        </p>
+      </div>
+
+      <!-- Error State -->
+      <div id="errorState" style="display: none;">
+        <div class="success-icon">⚠️</div>
+        <h2 style="color: var(--error);">License Retrieval Notice</h2>
+        <p id="errorMessage" style="color: var(--text-muted); margin: 1rem 0;"></p>
+        <a href="/" class="btn btn-secondary">Return to Home</a>
+      </div>
+
+      <!-- Content State -->
+      <div id="contentState" style="display: none;">
+        <div class="success-icon">🎉</div>
+        <h2 style="font-size: 2rem; margin-bottom: 0.5rem;">Welcome to WacPad Pro!</h2>
+        <p style="color: var(--text-muted);">
+          Payment confirmed for <strong id="customerEmail" style="color: var(--accent);"></strong>. Your lifetime license key has been generated and is ready to activate.
+        </p>
+
+        <!-- License Key Box -->
+        <div class="license-box">
+          <label for="licenseKeyInput">Your Pro Lifetime License Key (HMAC-SHA256)</label>
+          <input type="text" id="licenseKeyInput" class="license-key-text" readonly onclick="this.select();">
+        </div>
+
+        <button id="copyLicenseBtn" class="btn btn-pro btn-block" style="font-size: 1rem; padding: 0.85rem;">
+          📋 Copy License Key
+        </button>
+
+        <!-- Step-by-Step Activation Guide -->
+        <div class="activation-guide">
+          <h4>⚡ How to Activate in 3 Easy Steps:</h4>
+          <ol>
+            <li>Launch <strong>WacPad Desktop</strong> on your Windows PC or Mac.</li>
+            <li>Click <strong>Settings</strong> &rarr; <strong>License Status</strong> (or click Activate on the session limit dialog).</li>
+            <li>Paste your license key in the <strong>WP1-...</strong> field and click <strong>Activate</strong>.</li>
+          </ol>
+          <p style="margin-top: 0.75rem; font-size: 0.85rem; color: #10b981;">
+            ✓ Your connected iPad will immediately unlock full canvas (ad bar removed) and unlimited sessions!
+          </p>
+        </div>
+
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+          <a href="https://github.com/anonymux1/WacPad/releases/latest" class="btn btn-secondary" target="_blank">
+            ⬇️ Download WacPad Desktop
+          </a>
+          <a href="/" class="btn btn-secondary">
+            Return Home
+          </a>
+        </div>
+
+        <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: 2rem;">
+          A confirmation email with your license key and Stripe receipt has also been dispatched to your email address.
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 WacPad. Need assistance? Contact <a href="mailto:mohnishk@gmail.com">mohnishk@gmail.com</a>.</p>
+    </div>
+  </footer>
+
+  <script src="/js/success.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "wacpad-site",
+  "version": "1.0.0",
+  "description": "WacPad official landing page, download portal, Stripe payment checkout, and cryptographic licensing system",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "test": "node --test test/licensing.test.js test/api.test.js test/security.test.js test/activation.test.js"
+  },
+  "dependencies": {
+    "@upstash/redis": "^1.38.4",
+    "dotenv": "^16.4.5",
+    "stripe": "^17.5.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
