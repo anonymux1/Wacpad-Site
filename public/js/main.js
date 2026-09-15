@@ -16,22 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Download dropdown toggle
-  const downloadBtn = document.getElementById('downloadDropdownBtn');
-  const downloadMenu = document.getElementById('downloadMenu');
-
-  if (downloadBtn && downloadMenu) {
-    downloadBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const isExpanded = downloadMenu.classList.toggle('show');
-      downloadBtn.setAttribute('aria-expanded', isExpanded.toString());
-    });
-
-    document.addEventListener('click', () => {
-      downloadMenu.classList.remove('show');
-      downloadBtn.setAttribute('aria-expanded', 'false');
-    });
-  }
 
   // Checkout button handler
   const checkoutBtn = document.getElementById('buyProBtn');

@@ -29,31 +29,11 @@
       </a>
       <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle navigation menu" aria-expanded="false">☰</button>
       <ul class="nav-links" id="navLinks">
+        <li><a href="#downloads">Downloads</a></li>
         <li><a href="#features">Features</a></li>
         <li><a href="#pricing">Pricing</a></li>
         <li><a href="#faq">FAQ</a></li>
         <li><a href="/lookup.html">Recover Key</a></li>
-        <li>
-          <div class="download-dropdown">
-            <button class="btn btn-secondary" id="downloadDropdownBtn" aria-haspopup="true" aria-expanded="false" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
-              ⬇️ Download Host
-            </button>
-            <div class="dropdown-menu" id="downloadMenu" role="menu">
-              <a href="https://github.com/anonymux1/WacPad/releases/latest" class="dropdown-item" role="menuitem" target="_blank">
-                <span>🪟 Windows 10/11</span>
-                <small>Installer (.exe)</small>
-              </a>
-              <a href="https://github.com/anonymux1/WacPad/releases/latest" class="dropdown-item" role="menuitem" target="_blank">
-                <span>🍎 macOS 13+</span>
-                <small>Universal (.dmg)</small>
-              </a>
-              <a href="https://github.com/anonymux1/WacPad#2-building--deploying-the-ios-app" class="dropdown-item" role="menuitem" target="_blank">
-                <span>📱 iPadOS Client</span>
-                <small>App Store / IPA</small>
-              </a>
-            </div>
-          </div>
-        </li>
         <li>
           <a href="#pricing" class="btn btn-pro" style="padding: 0.5rem 1.15rem; font-size: 0.85rem;">
             ⭐ Get Pro — $14.99
@@ -73,8 +53,8 @@
       </p>
       <div class="hero-ctas">
         <a href="#pricing" class="btn btn-pro">⭐ Upgrade to Pro — $14.99</a>
-        <a href="https://github.com/anonymux1/WacPad/releases/latest" class="btn btn-secondary" target="_blank">
-          ⬇️ Download Free Desktop Host
+        <a href="#downloads" class="btn btn-secondary">
+          ⬇️ Free Downloads
         </a>
       </div>
 
@@ -95,6 +75,76 @@
         <div class="spec-item">
           <div class="spec-val">0° – 359°</div>
           <div class="spec-label">Pro Barrel Roll</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Downloads Section -->
+  <section class="downloads-section" id="downloads">
+    <div class="container">
+      <div class="section-title">
+        <div class="badge" style="margin-bottom: 0.75rem;">Free Desktop Server & Client</div>
+        <h2>Downloads & Setup</h2>
+        <p>Install the high-performance desktop server on your computer and open WacPad on your iPad.</p>
+      </div>
+
+      <div class="downloads-grid">
+        <!-- Card 1: Windows -->
+        <div class="download-card">
+          <div class="download-card-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.901-1.799"/>
+            </svg>
+          </div>
+          <h3>Windows Desktop Server</h3>
+          <p class="download-meta">Windows 10 / 11 (64-bit)</p>
+          <ul class="download-specs">
+            <li>Native Windows Ink (PT_PEN) driver injection</li>
+            <li>Direct USB usbmuxd and low-latency Wi-Fi</li>
+            <li>Photoshop, Clip Studio, Blender, ZBrush support</li>
+          </ul>
+          <a href="https://github.com/anonymux1/WacPad/releases/latest" class="btn btn-primary btn-block" target="_blank">
+            Download Installer (.exe)
+          </a>
+        </div>
+
+        <!-- Card 2: macOS -->
+        <div class="download-card">
+          <div class="download-card-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 1.01-2.85-.92.04-2.03.62-2.69 1.39-.58.67-.99 1.74-.95 2.8.03 0 .07 0 .1 0 1.02 0 1.95-.59 2.53-1.34z"/>
+            </svg>
+          </div>
+          <h3>macOS Desktop Server</h3>
+          <p class="download-meta">macOS 13+ (Apple Silicon & Intel)</p>
+          <ul class="download-specs">
+            <li>Universal Binary for Apple Silicon M-series & Intel</li>
+            <li>CoreGraphics virtual digitizer injection</li>
+            <li>Ultra-low CPU overhead with background standby</li>
+          </ul>
+          <a href="https://github.com/anonymux1/WacPad/releases/latest" class="btn btn-primary btn-block" target="_blank">
+            Download Disk Image (.dmg)
+          </a>
+        </div>
+
+        <!-- Card 3: iPad -->
+        <div class="download-card">
+          <div class="download-card-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M18 2H6C4.9 2 4 2.9 4 4v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-6 18.5c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm6-3.5H6V4h12v13z"/>
+            </svg>
+          </div>
+          <h3>iPad Client</h3>
+          <p class="download-meta">iPad with Apple Pencil Support</p>
+          <ul class="download-specs">
+            <li>240Hz ProMotion pencil sampling & pressure</li>
+            <li>Apple Pencil Pro barrel roll and squeeze haptics</li>
+            <li>Zero-latency fullscreen digitizer surface</li>
+          </ul>
+          <a href="https://github.com/anonymux1/WacPad#2-building--deploying-the-ios-app" class="btn btn-secondary btn-block" target="_blank">
+            App Store / TestFlight &rarr;
+          </a>
         </div>
       </div>
     </div>
@@ -177,7 +227,7 @@
             <li class="disabled"><span class="cross">✕</span> 30-minute continuous session limit</li>
             <li class="disabled"><span class="cross">✕</span> Top ad banner on iPad screen</li>
           </ul>
-          <a href="https://github.com/anonymux1/WacPad/releases/latest" class="btn btn-secondary btn-block" target="_blank">
+          <a href="#downloads" class="btn btn-secondary btn-block">
             Download Free
           </a>
         </div>
@@ -249,8 +299,10 @@
         &copy; 2026 WacPad Suite. Developed by <a href="https://github.com/anonymux1" target="_blank">anonymux1</a>. All rights reserved.
       </p>
       <p style="font-size: 0.85rem;">
-        <a href="https://github.com/anonymux1/WacPad" target="_blank">GitHub Repository</a> &bull;
+        <a href="/privacy.html">Privacy Policy</a> &bull;
+        <a href="/terms.html">Terms & Conditions</a> &bull;
         <a href="/lookup.html">License Lookup</a> &bull;
+        <a href="https://github.com/anonymux1/WacPad" target="_blank">GitHub Repository</a> &bull;
         <a href="mailto:mohnishk@gmail.com">Contact Support</a>
       </p>
     </div>
