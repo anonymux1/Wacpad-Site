@@ -182,8 +182,8 @@ export default async function handler(req, res) {
   }
 
   // 3. Connect to Upstash Redis
-  const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
-  const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+  const redisUrl = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+  const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
 
   if (!redisUrl || !redisToken) {
     // If Redis is not configured in local development, return mock token

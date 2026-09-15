@@ -39,8 +39,8 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: verification.error || 'Invalid license key' });
   }
 
-  const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
-  const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+  const redisUrl = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+  const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
 
   if (!redisUrl || !redisToken) {
     if (process.env.NODE_ENV !== 'production') {
