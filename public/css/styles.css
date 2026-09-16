@@ -492,6 +492,7 @@ a:hover {
   color: var(--text-muted);
   font-size: 0.95rem;
   margin-bottom: 2rem;
+  min-height: 2.8rem;
 }
 
 .pricing-features {
@@ -528,13 +529,19 @@ a:hover {
   flex-direction: column;
 }
 
+.pricing-footer .btn {
+  height: 52px;
+  min-height: 52px;
+  font-size: 1rem;
+}
+
 .pricing-note {
   font-size: 0.8rem;
   color: var(--text-dim);
   text-align: center;
   margin-top: 0.75rem;
-  min-height: 1.2rem;
-  line-height: 1.4;
+  min-height: 2.5rem;
+  line-height: 1.35;
 }
 
 /* ==========================================================================
