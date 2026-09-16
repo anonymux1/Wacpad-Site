@@ -1,6 +1,7 @@
 import Stripe from 'stripe';
 import { generateLicenseKey } from '../lib/licensing.js';
 import { sendLicenseEmail } from '../lib/email.js';
+import { getLicenseByEmail, saveLicenseMapping } from '../lib/db.js';
 
 // Module-level rate limiting: max 5 requests per 15 minutes per IP
 const rateLimitMap = new Map();
@@ -75,6 +76,24 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Please provide a valid email address.' });
   }
 
+  // 1. First check Upstash Redis: fast lookup of existing user/email mapping
+  try {
+    const existingRecord = await getLicenseByEmail(email);
+    if (existingRecord && existingRecord.licenseKey) {
+      await sendLicenseEmail({
+        email,
+        customerName: existingRecord.customerName || 'Valued Customer',
+        licenseKey: existingRecord.licenseKey,
+      });
+      return res.status(200).json({
+        success: true,
+        message: 'If a purchase exists for this email, your license key has been sent.',
+      });
+    }
+  } catch (dbErr) {
+    console.warn('[Lookup DB Warning] Upstash lookup skipped:', dbErr.message);
+  }
+
   const secretKey = process.env.STRIPE_SECRET_KEY;
   const isMockMode = !secretKey || secretKey.startsWith('mock_') || secretKey === 'placeholder';
 
@@ -85,6 +104,7 @@ export default async function handler(req, res) {
     }
     // In local / demo mode: simulate sending email, never return key in HTTP response
     const key = generateLicenseKey(email, 'ProLifetime');
+    await saveLicenseMapping({ email, licenseKey: key, tier: 'ProLifetime' }).catch(() => {});
     await sendLicenseEmail({
       email,
       customerName: 'Valued Customer',
@@ -100,6 +120,7 @@ export default async function handler(req, res) {
 
   try {
     let hasPurchase = false;
+    let customerId = null;
 
     // Exact email match (prevents query injection)
     const customers = await stripe.customers.list({
@@ -109,6 +130,7 @@ export default async function handler(req, res) {
 
     if (customers.data && customers.data.length > 0) {
       hasPurchase = true;
+      customerId = customers.data[0].id;
     } else {
       // Fallback check on charges
       const charges = await stripe.charges.list({ limit: 10 });
@@ -120,11 +142,20 @@ export default async function handler(req, res) {
       );
       if (matchedCharge) {
         hasPurchase = true;
+        customerId = matchedCharge.customer || null;
       }
     }
 
     if (hasPurchase) {
       const licenseKey = generateLicenseKey(email, 'ProLifetime');
+      // Persist to Upstash Redis so subsequent lookups are instant
+      await saveLicenseMapping({
+        email,
+        customerId,
+        licenseKey,
+        tier: 'ProLifetime',
+      }).catch(() => {});
+
       await sendLicenseEmail({
         email,
         customerName: 'Valued Customer',
