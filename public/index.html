@@ -49,7 +49,7 @@
       <div class="badge">Next-Gen Creative Hardware Engine</div>
       <h1>Turn your iPad into a Professional 240Hz Digitizer Tablet</h1>
       <p>
-        Sub-millisecond latency, screenless graphics tablet & digitizer for Windows 10/11 with native Windows Ink and macOS, Apple Pencil Pro Barrel Roll, and Zero-Config Direct USB Tunneling.
+        Sub-millisecond latency, screenless graphics tablet & digitizer for Windows 10/11 with native Windows Ink and macOS, Zero Config USB & WiFi connectivity.
       </p>
       <div class="hero-ctas">
         <a href="#pricing" class="btn btn-pro">⭐ Upgrade to Pro — $14.99</a>
@@ -66,15 +66,19 @@
         </div>
         <div class="spec-item">
           <div class="spec-val">240 Hz</div>
-          <div class="spec-label">ProMotion Sampling</div>
+          <div class="spec-label">Pro Motion Sampling</div>
         </div>
         <div class="spec-item">
           <div class="spec-val accent">4,096</div>
           <div class="spec-label">Pressure Levels</div>
         </div>
         <div class="spec-item">
-          <div class="spec-val">0° – 359°</div>
-          <div class="spec-label">Pro Barrel Roll</div>
+          <div class="spec-val">Multi-Monitor</div>
+          <div class="spec-label">Display Support</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-val accent">Custom Curves</div>
+          <div class="spec-label">Pressure Studio</div>
         </div>
       </div>
     </div>
@@ -100,9 +104,9 @@
           <h3>Windows Desktop Server</h3>
           <p class="download-meta">Windows 10 / 11 (64-bit)</p>
           <ul class="download-specs">
-            <li>Native Windows Ink (PT_PEN) driver injection</li>
+            <li>Native Windows Ink driver injection</li>
             <li>Direct USB usbmuxd and low-latency Wi-Fi</li>
-            <li>Photoshop, Clip Studio, Blender, ZBrush support</li>
+            <li>All Apps Supported ex. Photoshop, Clip Studio, Blender, ZBrush etc.</li>
           </ul>
           <a href="https://github.com/anonymux1/WacPad/releases/latest" class="btn btn-primary btn-block" target="_blank">
             Download Installer (.exe)
@@ -119,7 +123,7 @@
           <h3>macOS Desktop Server</h3>
           <p class="download-meta">macOS 13+ (Apple Silicon & Intel)</p>
           <ul class="download-specs">
-            <li>Universal Binary for Apple Silicon M-series & Intel</li>
+            <li>Supports both Apple Silicon M-series & Intel Macs</li>
             <li>CoreGraphics virtual digitizer injection</li>
             <li>Ultra-low CPU overhead with background standby</li>
           </ul>
@@ -160,44 +164,44 @@
     <div class="grid-3">
       <div class="card">
         <div class="card-icon">⚡</div>
-        <h3>Zero-Config Direct USB</h3>
+        <h3>Zero-Config Connection</h3>
         <p>
-          Sub-0.5ms round-trip latency via native Apple MobileDevice <code style="color: #38bdf8;">usbmuxd</code> tunnel on port 8766. No Wi-Fi congestion, no IP typing, and automatic Wi-Fi standby failover.
+          Sub-0.5ms round-trip latency on both MacOS and Windows 10/11 via USB connection with automatic WiFi Fallback, WiFi only connection supported with automatic server detection.
         </p>
       </div>
       <div class="card">
-        <div class="card-icon">🖊️</div>
-        <h3>Apple Pencil Pro Hardware</h3>
+        <div class="card-icon">🖥️🖥️</div>
+        <h3>Multi-Monitor Support</h3>
         <p>
-          Full 4,096 hardware pressure levels, tilt projection with altitude math, barrel rotation tracking ($0^\circ \dots 359^\circ$), double-tap tool toggle, and multi-touch gestures.
+          Map your iPad drawing surface to any single display or span across multi-monitor desktop setups. Aspect-ratio locking ensures your brush strokes never distort or stretch across widescreen monitors.
         </p>
       </div>
       <div class="card">
         <div class="card-icon">🖥️</div>
-        <h3>Native Pointer Injection</h3>
+        <h3>Native Stylus Precision</h3>
         <p>
-          Direct Win32 kernel <code style="color: #38bdf8;">PT_PEN</code> pointer injection on Windows 10/11 for native Windows Ink support in Photoshop, Clip Studio, and Blender, plus Quartz CoreGraphics on macOS.
+          Smooth, zero-lag pen input with native Windows Ink integration for Windows 10/11 and low-level graphics acceleration on macOS. True hardware pressure response with zero driver bloat.
         </p>
       </div>
       <div class="card">
         <div class="card-icon">📈</div>
         <h3>Pressure Curve Studio</h3>
         <p>
-          Interactive cubic Bézier curves with live visualization and presets (Linear, Soft Inking, Firm Precision, S-Curve).
+          Interactive cubic Bézier curves with live visual calibration and presets (Linear, Soft Inking, Firm Precision, S-Curve) to match your personal stylus hand feel.
         </p>
       </div>
       <div class="card">
-        <div class="card-icon">🖥️🖥️</div>
-        <h3>Multi-Monitor Geometry</h3>
+        <div class="card-icon">🖊️</div>
+        <h3>Apple Pencil Pro Hardware</h3>
         <p>
-          Interactive topology editor supporting heterogeneous resolutions, 4K displays, and negative coordinate offsets across any multi-screen workspace.
+          Full 4,096 hardware pressure levels, natural tilt angle projection, double-tap tool toggle, and fluid multi-touch canvas navigation gestures.
         </p>
       </div>
       <div class="card">
         <div class="card-icon">🔒</div>
-        <h3>Offline Cryptographic License</h3>
+        <h3>100% Offline Lifetime Access</h3>
         <p>
-          Your Pro license uses embedded HMAC-SHA256 signatures validated 100% offline. No constant internet phone-home, no recurring subscriptions, and zero tracking.
+          Draw anywhere—in your studio, on an airplane, or off the grid. Your one-time license key works permanently without requiring an internet connection or recurring subscriptions.
         </p>
       </div>
     </div>
@@ -215,6 +219,7 @@
         <!-- Free Tier -->
         <div class="pricing-card">
           <div class="pricing-header">
+            <div class="badge" style="visibility: hidden; margin-bottom: 0.85rem; font-size: 0.78rem;" aria-hidden="true">Free Tier</div>
             <h3>WacPad Free</h3>
             <div class="pricing-price">$0 <span class="pricing-period">forever</span></div>
             <p class="pricing-desc">Everything needed to test latency and draw casually.</p>
@@ -227,15 +232,18 @@
             <li class="disabled"><span class="cross">✕</span> 30-minute continuous session limit</li>
             <li class="disabled"><span class="cross">✕</span> Top ad banner on iPad screen</li>
           </ul>
-          <a href="#downloads" class="btn btn-secondary btn-block">
-            Download Free
-          </a>
+          <div class="pricing-footer">
+            <a href="#downloads" class="btn btn-secondary btn-block">
+              Download Free
+            </a>
+            <p class="pricing-note">Free forever &bull; No credit card required</p>
+          </div>
         </div>
 
         <!-- Pro Tier -->
         <div class="pricing-card featured">
-          <div class="badge badge-pro pricing-badge">⭐ Lifetime Pro</div>
           <div class="pricing-header">
+            <div class="badge badge-pro pricing-badge">⭐ Lifetime Pro</div>
             <h3>WacPad Pro</h3>
             <div class="pricing-price">$14.99 <span class="pricing-period">one-time lifetime</span></div>
             <p class="pricing-desc">For digital painters, animators, and concept artists.</p>
@@ -248,12 +256,14 @@
             <li><span class="check">✓</span> Cross-platform for Windows & macOS</li>
             <li><span class="check">✓</span> All future v2.x updates included</li>
           </ul>
-          <button id="buyProBtn" class="btn btn-pro btn-block" style="font-size: 1.05rem; padding: 0.9rem;">
-            ⭐ Buy Pro Lifetime License — $14.99
-          </button>
-          <p style="font-size: 0.8rem; color: var(--text-dim); text-align: center; margin-top: 0.75rem;">
-            🔒 Secure checkout via Stripe. Includes automated VAT invoice.
-          </p>
+          <div class="pricing-footer">
+            <button id="buyProBtn" class="btn btn-pro btn-block">
+              ⭐ Buy Pro Lifetime License — $14.99
+            </button>
+            <p class="pricing-note">
+              🔒 Secure checkout via Stripe &bull; Includes automated VAT invoice
+            </p>
+          </div>
         </div>
       </div>
 
@@ -301,8 +311,7 @@
       <p style="font-size: 0.85rem;">
         <a href="/privacy.html">Privacy Policy</a> &bull;
         <a href="/terms.html">Terms & Conditions</a> &bull;
-        <a href="/lookup.html">License Lookup</a> &bull;
-        <a href="https://github.com/anonymux1/WacPad" target="_blank">GitHub Repository</a> &bull;
+        <a href="/lookup.html">Recover Key</a> &bull;
         <a href="mailto:mohnishk@gmail.com">Contact Support</a>
       </p>
     </div>

@@ -453,10 +453,17 @@ a:hover {
 }
 
 .pricing-badge {
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.pricing-header {
+  margin-bottom: 1.25rem;
 }
 
 .pricing-header h3 {
@@ -513,6 +520,21 @@ a:hover {
 
 .pricing-features .cross {
   color: var(--text-dim);
+}
+
+.pricing-footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.pricing-note {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-align: center;
+  margin-top: 0.75rem;
+  min-height: 1.2rem;
+  line-height: 1.4;
 }
 
 /* ==========================================================================
