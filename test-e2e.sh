@@ -16,6 +16,7 @@ PASS=0
 FAIL=0
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+[[ -d "$PROJECT_DIR/WacPad" ]] && PROJECT_DIR="$PROJECT_DIR/WacPad"
 PORT=0
 SERVER_PID=0
 
@@ -135,12 +136,16 @@ fi
 
 # 2. Runs cargo test for Rust cross-platform verification
 echo -e "\n${BLUE}${BOLD}[PHASE 2] Running Rust Cross-Platform Test Suite (cargo test)${NC}"
-if (cd "$PROJECT_DIR" && cargo test); then
-  echo -e "  ${GREEN}✓ PASS${NC}: Rust workspace test suite"
-  ((PASS++)) || true
+if command -v cargo &>/dev/null; then
+  if (cd "$PROJECT_DIR" && cargo test --workspace); then
+    echo -e "  ${GREEN}✓ PASS${NC}: Rust workspace test suite"
+    ((PASS++)) || true
+  else
+    echo -e "  ${RED}✗ FAIL${NC}: Rust workspace test suite failed"
+    ((FAIL++)) || true
+  fi
 else
-  echo -e "  ${RED}✗ FAIL${NC}: Rust workspace test suite failed"
-  ((FAIL++)) || true
+  echo -e "  ${YELLOW}⚠ SKIP${NC}: cargo not found in PATH, skipping Rust tests"
 fi
 
 # 3. Start local server in development mode

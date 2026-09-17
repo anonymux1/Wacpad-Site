@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "node server.js",
     "start": "node server.js",
-    "test": "node --test test/licensing.test.js test/api.test.js test/security.test.js test/activation.test.js test/recovery.test.js"
+    "test": "node --test test/licensing.test.js test/api.test.js test/security.test.js test/activation.test.js test/recovery.test.js",
+    "test:stripe": "node --test test/test-stripe-e2e.js"
   },
   "dependencies": {
     "@upstash/redis": "^1.38.4",

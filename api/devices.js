@@ -6,6 +6,7 @@
 import crypto from 'crypto';
 import { Redis } from '@upstash/redis';
 import { verifyLicenseKey } from '../lib/licensing.js';
+import { devMockMachines } from '../lib/db.js';
 
 export const MAX_SEATS = 3;
 
@@ -42,8 +43,39 @@ export default async function handler(req, res) {
   const redisUrl = process.env.UPSTASH_KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
   const redisToken = process.env.UPSTASH_KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
 
+  const licenseHash = crypto.createHash('sha256').update(license_key.trim()).digest('hex');
+  const redisKey = `license:${licenseHash}:machines`;
+
   if (!redisUrl || !redisToken) {
     if (process.env.NODE_ENV !== 'production') {
+      const machines = devMockMachines.get(redisKey);
+      const devices = [];
+      if (machines && machines.size > 0) {
+        for (const [mid, dataStr] of machines.entries()) {
+          try {
+            const parsed = typeof dataStr === 'string' ? JSON.parse(dataStr) : dataStr;
+            devices.push({
+              machine_id: mid,
+              device_name: parsed.device_name || 'Desktop Workstation',
+              os: parsed.os || 'Unknown OS',
+              activated_at: parsed.activated_at || null,
+            });
+          } catch {
+            devices.push({
+              machine_id: mid,
+              device_name: 'Desktop Workstation',
+              os: 'Unknown OS',
+              activated_at: null,
+            });
+          }
+        }
+        return res.status(200).json({
+          success: true,
+          devices,
+          seats_used: devices.length,
+          max_seats: MAX_SEATS,
+        });
+      }
       return res.status(200).json({
         success: true,
         devices: [
@@ -60,9 +92,6 @@ export default async function handler(req, res) {
     }
     return res.status(500).json({ error: 'Activation database unconfigured' });
   }
-
-  const licenseHash = crypto.createHash('sha256').update(license_key.trim()).digest('hex');
-  const redisKey = `license:${licenseHash}:machines`;
 
   const redis = new Redis({
     url: redisUrl,

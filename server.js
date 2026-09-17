@@ -194,3 +194,7 @@ server.listen(PORT, () => {
   console.log(`  • License Lookup: http://localhost:${PORT}/lookup.html`);
   console.log(`======================================================\n`);
 });
+
+export { server };
+export default server;
+

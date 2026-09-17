@@ -9,6 +9,7 @@ import crypto from 'crypto';
 import Stripe from 'stripe';
 import { Redis } from '@upstash/redis';
 import { verifyLicenseKey } from '../lib/licensing.js';
+import { devMockMachines, getLicenseByEmail } from '../lib/db.js';
 
 export const MAX_SEATS = 3;
 
@@ -40,6 +41,8 @@ return { 1, new_count, "newly_activated" }
 
 /**
  * Validates whether an email has a completed purchase in Stripe.
+ * First checks Redis database for an existing issued license mapping.
+ * Falls back to searching Stripe customers and charges via the Search API.
  *
  * @param {Stripe} stripe - Stripe SDK instance
  * @param {string} email - Customer email
@@ -47,8 +50,27 @@ return { 1, new_count, "newly_activated" }
  */
 export async function verifyStripePurchase(stripe, email) {
   try {
-    // 1. Search customers
-    const customers = await stripe.customers.list({ email, limit: 1 });
+    const normalizedEmail = (email || '').trim().toLowerCase();
+    if (!normalizedEmail) {
+      return false;
+    }
+
+    // 1. First check the Redis/mock database for the license key (saved during webhook / purchase flow)
+    try {
+      const existing = await getLicenseByEmail(normalizedEmail);
+      if (existing && existing.licenseKey) {
+        return true;
+      }
+    } catch (dbErr) {
+      console.warn('[Stripe Purchase Verification] Redis lookup skipped:', dbErr.message);
+    }
+
+    if (!stripe) {
+      return false;
+    }
+
+    // 2. Search Stripe customers by exact email
+    const customers = await stripe.customers.list({ email: normalizedEmail, limit: 1 });
     if (customers.data && customers.data.length > 0) {
       const customerId = customers.data[0].id;
       const charges = await stripe.charges.list({ customer: customerId, limit: 5 });
@@ -57,15 +79,22 @@ export async function verifyStripePurchase(stripe, email) {
       }
     }
 
-    // 2. Search charges directly by billing email
-    const charges = await stripe.charges.list({ limit: 20 });
-    const matched = charges.data?.find(
-      (c) =>
-        c.billing_details?.email?.toLowerCase() === email &&
-        c.status === 'succeeded' &&
-        !c.refunded
-    );
-    return !!matched;
+    // 3. Fall back to searching charges directly with email query using Stripe Search API (no 20-charge limit)
+    if (typeof stripe.charges?.search === 'function') {
+      try {
+        const sanitizedEmail = normalizedEmail.replace(/['\\]/g, '');
+        const searchResult = await stripe.charges.search({
+          query: `billing_details.email:\'${sanitizedEmail}\'`,
+        });
+        if (searchResult?.data?.some((c) => c.status === 'succeeded' && !c.refunded)) {
+          return true;
+        }
+      } catch (searchErr) {
+        console.warn('[Stripe Purchase Verification] charges.search error:', searchErr.message);
+      }
+    }
+
+    return false;
   } catch (err) {
     console.error('[Stripe Purchase Verification Error]', err);
     return false;
@@ -167,12 +196,31 @@ export default async function handler(req, res) {
   const email = verification.payload.email.toLowerCase().trim();
   const licenseHash = crypto.createHash('sha256').update(license_key.trim()).digest('hex');
 
-  // 2. Cross-reference Stripe to prevent forged key activation
+  // 2. Production database configuration guard
+  const redisUrl = process.env.UPSTASH_KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+  const redisToken = process.env.UPSTASH_KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
+
+  if (process.env.NODE_ENV === 'production' && (!redisUrl || !redisToken)) {
+    return res.status(500).json({ error: 'Activation database unconfigured' });
+  }
+
+  // 3. Cross-reference Stripe to prevent forged key activation
   const stripeKey = process.env.STRIPE_SECRET_KEY;
   const isMockMode = !stripeKey || stripeKey.startsWith('mock_') || stripeKey === 'placeholder';
 
-  if (!isMockMode) {
-    const stripe = new Stripe(stripeKey);
+  if (process.env.NODE_ENV === 'production') {
+    if (isMockMode) {
+      return res.status(500).json({ error: 'Stripe service unconfigured in production' });
+    }
+    const stripe = (await import('stripe')).default(stripeKey);
+    const hasPaid = await verifyStripePurchase(stripe, email);
+    if (!hasPaid) {
+      return res.status(403).json({
+        error: 'No valid purchase record found for this license key in Stripe. Key cannot be activated.',
+      });
+    }
+  } else if (!isMockMode) {
+    const stripe = (await import('stripe')).default(stripeKey);
     const hasPaid = await verifyStripePurchase(stripe, email);
     if (!hasPaid) {
       return res.status(403).json({
@@ -181,24 +229,7 @@ export default async function handler(req, res) {
     }
   }
 
-  // 3. Connect to Upstash Redis
-  const redisUrl = process.env.UPSTASH_KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
-  const redisToken = process.env.UPSTASH_KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
-
-  if (!redisUrl || !redisToken) {
-    // If Redis is not configured in local development, return mock token
-    if (process.env.NODE_ENV !== 'production') {
-      const mockSecret = process.env.ACTIVATION_TOKEN_SECRET || 'dev-activation-secret-32-chars-long!!';
-      const mockToken = mintActivationToken(
-        { email, license_hash: licenseHash, machine_id, seat: 1, max_seats: MAX_SEATS, activated_at: Math.floor(Date.now() / 1000) },
-        mockSecret
-      );
-      return res.status(200).json({ success: true, seat: 1, max_seats: MAX_SEATS, token: mockToken });
-    }
-    return res.status(500).json({ error: 'Activation database unconfigured' });
-  }
-
-  const redis = new Redis({ url: redisUrl, token: redisToken });
+  // 4. Connect to Upstash Redis
   const redisKey = `license:${licenseHash}:machines`;
   const machineData = JSON.stringify({
     machine_id,
@@ -207,20 +238,50 @@ export default async function handler(req, res) {
     activated_at: Math.floor(Date.now() / 1000),
   });
 
-  // 4. Atomic seat registration via Lua script
-  let result;
-  try {
-    result = await redis.eval(
-      ATOMIC_ACTIVATE_SCRIPT,
-      [redisKey],
-      [machine_id, machineData, MAX_SEATS]
-    );
-  } catch (err) {
-    console.error('[Redis Activation Error]', err);
-    return res.status(500).json({ error: 'Failed to process activation request' });
-  }
+  let granted;
+  let seatCount;
+  let reason;
 
-  const [granted, seatCount, reason] = result;
+  if (!redisUrl || !redisToken) {
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(500).json({ error: 'Activation database unconfigured' });
+    }
+
+    let machines = devMockMachines.get(redisKey);
+    if (!machines) {
+      machines = new Map();
+      devMockMachines.set(redisKey, machines);
+    }
+
+    if (machines.has(machine_id)) {
+      machines.set(machine_id, machineData);
+      granted = 1;
+      seatCount = machines.size;
+      reason = 'already_registered';
+    } else if (machines.size >= MAX_SEATS) {
+      granted = 0;
+      seatCount = machines.size;
+      reason = 'limit_reached';
+    } else {
+      machines.set(machine_id, machineData);
+      granted = 1;
+      seatCount = machines.size;
+      reason = 'newly_activated';
+    }
+  } else {
+    const redis = new Redis({ url: redisUrl, token: redisToken });
+    try {
+      const result = await redis.eval(
+        ATOMIC_ACTIVATE_SCRIPT,
+        [redisKey],
+        [machine_id, machineData, MAX_SEATS]
+      );
+      [granted, seatCount, reason] = result;
+    } catch (err) {
+      console.error('[Redis Activation Error]', err);
+      return res.status(500).json({ error: 'Failed to process activation request' });
+    }
+  }
 
   if (granted !== 1) {
     return res.status(403).json({
