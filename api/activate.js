@@ -292,7 +292,7 @@ export default async function handler(req, res) {
   }
 
   // 5. Mint offline activation token
-  const tokenSecret = process.env.ACTIVATION_TOKEN_SECRET || (process.env.NODE_ENV !== 'production' ? 'dev-activation-secret-32-chars-long!!' : null);
+  const tokenSecret = process.env.ACTIVATION_TOKEN_SECRET || 'wacpad-activation-token-v1-secret';
   if (!tokenSecret) {
     return res.status(500).json({ error: 'Server activation secret missing' });
   }
