@@ -1,6 +1,6 @@
 {
   "name": "wacpad-site",
-  "version": "1.0.0",
+  "version": "0.7.0",
   "description": "WacPad official landing page, download portal, Stripe payment checkout, and cryptographic licensing system",
   "main": "server.js",
   "type": "module",
