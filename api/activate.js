@@ -101,36 +101,146 @@ export async function verifyStripePurchase(stripe, email) {
   }
 }
 
+export const DEFAULT_DEV_PRIVATE_KEY = 'd2b426e25a5c69da785108714243fa911c42809034ee84e19f18e5eb5fac041d';
+export const DEFAULT_DEV_PUBLIC_KEY = 'e5caa65d999e35f5db70c227338be28e99774aeb4fccc86194eea484a2e9b781';
+
 /**
- * Mints an offline activation token signed with the server-only secret.
- *
- * @param {object} payload - Activation payload
- * @param {string} secret - ACTIVATION_TOKEN_SECRET
- * @returns {string} WPACT-<base64> token
+ * Parses an Ed25519 private key from a KeyObject, PEM string, or 64-character hex seed.
  */
-export function mintActivationToken(payload, secret) {
-  const jsonStr = JSON.stringify(payload);
-  const jsonBytes = Buffer.from(jsonStr, 'utf8');
-  const hmac = crypto.createHmac('sha256', Buffer.from(secret, 'utf8'));
-  hmac.update(jsonBytes);
-  const sig = hmac.digest();
-  return `WPACT-${Buffer.concat([jsonBytes, sig]).toString('base64')}`;
+export function getPrivateKey(input) {
+  if (!input) return null;
+  try {
+    if (typeof input === 'object' && input.type === 'private') return input;
+    if (Buffer.isBuffer(input)) {
+      if (input.length === 32) {
+        const pkcs8Header = Buffer.from('302e020100300506032b657004220420', 'hex');
+        return crypto.createPrivateKey({
+          key: Buffer.concat([pkcs8Header, input]),
+          format: 'der',
+          type: 'pkcs8',
+        });
+      }
+      if (input.length === 48) {
+        return crypto.createPrivateKey({
+          key: input,
+          format: 'der',
+          type: 'pkcs8',
+        });
+      }
+      return crypto.createPrivateKey(input);
+    }
+    const str = String(input).trim();
+    if (str.startsWith('-----BEGIN')) return crypto.createPrivateKey(str);
+    if (/^[0-9a-fA-F]{64}$/.test(str)) {
+      const pkcs8Header = Buffer.from('302e020100300506032b657004220420', 'hex');
+      return crypto.createPrivateKey({
+        key: Buffer.concat([pkcs8Header, Buffer.from(str, 'hex')]),
+        format: 'der',
+        type: 'pkcs8',
+      });
+    }
+    return crypto.createPrivateKey(str);
+  } catch {
+    return null;
+  }
 }
 
 /**
- * Verifies an offline activation token signature and payload.
+ * Parses an Ed25519 public key from a KeyObject, PEM string, or 64-character hex string.
+ * If passed a private key, extracts the corresponding public key.
+ */
+export function getPublicKey(input) {
+  if (!input) return null;
+  try {
+    if (typeof input === 'object' && input.type === 'public') return input;
+    if (typeof input === 'object' && input.type === 'private') return crypto.createPublicKey(input);
+    if (Buffer.isBuffer(input)) {
+      if (input.length === 32) {
+        const spkiHeader = Buffer.from('302a300506032b6570032100', 'hex');
+        return crypto.createPublicKey({
+          key: Buffer.concat([spkiHeader, input]),
+          format: 'der',
+          type: 'spki',
+        });
+      }
+      if (input.length === 44) {
+        return crypto.createPublicKey({
+          key: input,
+          format: 'der',
+          type: 'spki',
+        });
+      }
+      if (input.length === 48) {
+        return crypto.createPublicKey(crypto.createPrivateKey({
+          key: input,
+          format: 'der',
+          type: 'pkcs8',
+        }));
+      }
+      return crypto.createPublicKey(input);
+    }
+    const str = String(input).trim();
+    if (str.startsWith('-----BEGIN PRIVATE')) {
+      return crypto.createPublicKey(crypto.createPrivateKey(str));
+    }
+    if (str.startsWith('-----BEGIN')) {
+      return crypto.createPublicKey(str);
+    }
+    if (/^[0-9a-fA-F]{64}$/.test(str)) {
+      const spkiHeader = Buffer.from('302a300506032b6570032100', 'hex');
+      return crypto.createPublicKey({
+        key: Buffer.concat([spkiHeader, Buffer.from(str, 'hex')]),
+        format: 'der',
+        type: 'spki',
+      });
+    }
+    return crypto.createPublicKey(str);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Mints an offline activation token signed with the server's Ed25519 private key.
+ *
+ * @param {object} payload - Activation payload
+ * @param {string|crypto.KeyObject} privateKeyInput - Private key (PEM or hex seed)
+ * @returns {string} WPACT-<base64> token
+ */
+export function mintActivationToken(payload, privateKeyInput) {
+  const privateKey = getPrivateKey(privateKeyInput);
+  if (!privateKey) {
+    throw new Error('Invalid private key for token minting');
+  }
+  const jsonStr = JSON.stringify(payload);
+  const jsonBytes = Buffer.from(jsonStr, 'utf8');
+  const signature = crypto.sign(null, jsonBytes, privateKey);
+  return `WPACT-${Buffer.concat([jsonBytes, signature]).toString('base64')}`;
+}
+
+/**
+ * Verifies an offline activation token signature using an Ed25519 public key.
  *
  * @param {string} token - WPACT-<base64> token
- * @param {string} secret - ACTIVATION_TOKEN_SECRET
+ * @param {string|crypto.KeyObject} [publicKeyInput] - Public key (defaults to DEFAULT_DEV_PUBLIC_KEY)
  * @returns {{ valid: boolean, payload?: object, error?: string }}
  */
-export function verifyActivationToken(token, secret) {
+export function verifyActivationToken(token, publicKeyInput = DEFAULT_DEV_PUBLIC_KEY) {
+  const publicKey = getPublicKey(publicKeyInput);
+  if (!publicKey) {
+    return { valid: false, error: 'Invalid public key' };
+  }
+
   const trimmed = (token || '').trim();
   if (!trimmed.startsWith('WPACT-')) {
     return { valid: false, error: "Missing 'WPACT-' prefix" };
   }
 
   const b64Str = trimmed.slice(6);
+  if (!/^[A-Za-z0-9+/]+={0,2}$/.test(b64Str)) {
+    return { valid: false, error: 'Invalid Base64 encoding' };
+  }
+
   let decoded;
   try {
     decoded = Buffer.from(b64Str, 'base64');
@@ -138,23 +248,47 @@ export function verifyActivationToken(token, secret) {
     return { valid: false, error: `Invalid Base64 encoding: ${err.message}` };
   }
 
-  if (decoded.length < 32) {
+  // Detect legacy HMAC tokens and provide explicit diagnostic error
+  if (decoded.length < 65) {
+    if (decoded.length >= 32) {
+      return {
+        valid: false,
+        error: 'Incompatible token format (detected legacy HMAC token; Ed25519 signature required)',
+      };
+    }
     return { valid: false, error: 'Token payload is too short' };
   }
 
-  const payloadBytes = decoded.subarray(0, decoded.length - 32);
-  const sigBytes = decoded.subarray(decoded.length - 32);
+  const payloadBytes = decoded.subarray(0, decoded.length - 64);
+  const sigBytes = decoded.subarray(decoded.length - 64);
 
-  const hmac = crypto.createHmac('sha256', Buffer.from(secret, 'utf8'));
-  hmac.update(payloadBytes);
-  const expectedSig = hmac.digest();
-
-  if (!crypto.timingSafeEqual(sigBytes, expectedSig)) {
-    return { valid: false, error: 'Invalid HMAC signature' };
+  const isValid = crypto.verify(null, payloadBytes, publicKey, sigBytes);
+  if (!isValid) {
+    if (decoded.length >= 32) {
+      try {
+        const candidatePayload = JSON.parse(decoded.subarray(0, decoded.length - 32).toString('utf8'));
+        if (
+          candidatePayload &&
+          typeof candidatePayload === 'object' &&
+          ('license_hash' in candidatePayload || 'machine_id' in candidatePayload)
+        ) {
+          return {
+            valid: false,
+            error: 'Incompatible token format (detected legacy HMAC token; Ed25519 signature required)',
+          };
+        }
+      } catch {
+        // Not a valid JSON payload from a legacy token
+      }
+    }
+    return { valid: false, error: 'Invalid Ed25519 signature' };
   }
 
   try {
     const payload = JSON.parse(payloadBytes.toString('utf8'));
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+      return { valid: false, error: 'Corrupt token JSON: payload must be a JSON object' };
+    }
     return { valid: true, payload };
   } catch (err) {
     return { valid: false, error: `Corrupt token JSON: ${err.message}` };
@@ -202,6 +336,14 @@ export default async function handler(req, res) {
 
   if (process.env.NODE_ENV === 'production' && (!redisUrl || !redisToken)) {
     return res.status(500).json({ error: 'Activation database unconfigured' });
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    const configuredKey = (process.env.ACTIVATION_TOKEN_PRIVATE_KEY || '').trim();
+    if (!configuredKey || configuredKey === DEFAULT_DEV_PRIVATE_KEY) {
+      console.error('[Activation Token Error] Server token signing key configuration error');
+      return res.status(500).json({ error: 'Server token signing key configuration error' });
+    }
   }
 
   // 3. Cross-reference Stripe to prevent forged key activation
@@ -291,10 +433,24 @@ export default async function handler(req, res) {
     });
   }
 
-  // 5. Mint offline activation token
-  const tokenSecret = process.env.ACTIVATION_TOKEN_SECRET || 'wacpad-activation-token-v1-secret';
-  if (!tokenSecret) {
-    return res.status(500).json({ error: 'Server activation secret missing' });
+  // 5. Mint offline activation token using Ed25519 private key
+  if (process.env.NODE_ENV === 'production') {
+    const configuredKey = (process.env.ACTIVATION_TOKEN_PRIVATE_KEY || '').trim();
+    if (!configuredKey || configuredKey === DEFAULT_DEV_PRIVATE_KEY) {
+      console.error('[Activation Token Error] Server token signing key configuration error');
+      return res.status(500).json({ error: 'Server token signing key configuration error' });
+    }
+  }
+
+  let privateKey;
+  try {
+    const rawKey = process.env.ACTIVATION_TOKEN_PRIVATE_KEY || DEFAULT_DEV_PRIVATE_KEY;
+    privateKey = getPrivateKey(rawKey);
+    if (!privateKey) throw new Error('Key initialization failed');
+  } catch (keyErr) {
+    // Strict secret hygiene: Never log key content, never serialize internal key errors to client
+    console.error('[Activation Token Error] Failed to initialize Ed25519 signing key');
+    return res.status(500).json({ error: 'Server token signing key configuration error' });
   }
 
   const tokenPayload = {
@@ -306,7 +462,13 @@ export default async function handler(req, res) {
     activated_at: Math.floor(Date.now() / 1000),
   };
 
-  const activationToken = mintActivationToken(tokenPayload, tokenSecret);
+  let activationToken;
+  try {
+    activationToken = mintActivationToken(tokenPayload, privateKey);
+  } catch (mintErr) {
+    console.error('[Activation Token Error] Token signing failed');
+    return res.status(500).json({ error: 'Failed to generate activation token' });
+  }
 
   return res.status(200).json({
     success: true,

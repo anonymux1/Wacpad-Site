@@ -1,9 +1,12 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
+import crypto from 'crypto';
 
 import activateHandler, {
   mintActivationToken,
   verifyActivationToken,
+  DEFAULT_DEV_PRIVATE_KEY,
+  DEFAULT_DEV_PUBLIC_KEY,
   MAX_SEATS,
 } from '../api/activate.js';
 import deactivateHandler from '../api/deactivate.js';
@@ -154,8 +157,8 @@ describe('API: activate, deactivate, devices & token minting', () => {
     );
   });
 
-  // 8. activate: production mode without STRIPE_SECRET_KEY still works in mock mode
-  it('8. activate: production mode without STRIPE_SECRET_KEY still works in mock mode', async () => {
+  // 8. activate: test mode without STRIPE_SECRET_KEY still works in mock mode
+  it('8. activate: test mode without STRIPE_SECRET_KEY still works in mock mode', async () => {
     await withEnvAsync(
       {
         NODE_ENV: 'test',
@@ -275,9 +278,8 @@ describe('API: activate, deactivate, devices & token minting', () => {
     );
   });
 
-  // 15. Token minting: WPACT- token has correct format (WPACT- prefix + base64)
-  it('15. Token minting: WPACT- token has correct format (WPACT- prefix + base64)', () => {
-    const secret = 'super-secret-token-key-32-chars!!';
+  // 15. Token minting: WPACT- token signed with Ed25519 verifies correctly
+  it('15. Token minting: WPACT- token signed with Ed25519 verifies correctly', () => {
     const payload = {
       email: testEmail,
       machine_id: testMachineId,
@@ -286,37 +288,31 @@ describe('API: activate, deactivate, devices & token minting', () => {
       activated_at: 1700000000,
     };
 
-    const token = mintActivationToken(payload, secret);
+    const token = mintActivationToken(payload, DEFAULT_DEV_PRIVATE_KEY);
     assert.ok(token.startsWith('WPACT-'), `Token must start with WPACT-, got ${token}`);
 
-    // Verify Base64 decoding
     const b64 = token.slice(6);
     const decoded = Buffer.from(b64, 'base64');
-    assert.ok(decoded.length > 32, 'Decoded token must contain payload + 32-byte HMAC signature');
+    assert.ok(decoded.length >= 65, 'Decoded token must contain payload + 64-byte Ed25519 signature');
 
-    // Cryptographic verification
-    const verified = verifyActivationToken(token, secret);
+    const verified = verifyActivationToken(token, DEFAULT_DEV_PUBLIC_KEY);
     assert.equal(verified.valid, true);
     assert.equal(verified.payload.email, testEmail);
     assert.equal(verified.payload.machine_id, testMachineId);
     assert.equal(verified.payload.seat, 2);
   });
 
-  // 16. Token minting: different secrets produce different tokens
-  it('16. Token minting: different secrets produce different tokens', () => {
+  // 16. Token minting: mismatched keypairs fail verification
+  it('16. Token minting: mismatched keypairs fail verification', () => {
+    const { privateKey: privA } = crypto.generateKeyPairSync('ed25519');
+    const { publicKey: pubB } = crypto.generateKeyPairSync('ed25519');
+
     const payload = { email: testEmail, machine_id: testMachineId, seat: 1 };
-    const secretA = 'secret-alpha-key-at-least-32-chars';
-    const secretB = 'secret-bravo-key-at-least-32-chars';
+    const tokenA = mintActivationToken(payload, privA);
 
-    const tokenA = mintActivationToken(payload, secretA);
-    const tokenB = mintActivationToken(payload, secretB);
-
-    assert.notEqual(tokenA, tokenB, 'Different secrets must produce different tokens');
-
-    // Cross-verification fails
-    const verifiedWrong = verifyActivationToken(tokenA, secretB);
-    assert.equal(verifiedWrong.valid, false, 'Token signed with secretA must fail verification with secretB');
-    assert.equal(verifiedWrong.error, 'Invalid HMAC signature');
+    const verifiedWrong = verifyActivationToken(tokenA, pubB);
+    assert.equal(verifiedWrong.valid, false);
+    assert.equal(verifiedWrong.error, 'Invalid Ed25519 signature');
   });
 
   // 17. Production lockdown: activate blocked when NODE_ENV=production and no Redis configured
@@ -381,9 +377,139 @@ describe('API: activate, deactivate, devices & token minting', () => {
     assert.equal(res.statusCode, 400);
   });
 
-  it('21. Token verification: corrupt or truncated token rejected', () => {
-    assert.equal(verifyActivationToken('', 'secret').valid, false);
-    assert.equal(verifyActivationToken('INVALID-abc', 'secret').valid, false);
-    assert.equal(verifyActivationToken('WPACT-short', 'secret').valid, false);
+  // 21. Token verification: corrupt, truncated, or legacy HMAC tokens rejected with diagnostics
+  it('21. Token verification: corrupt, truncated, or legacy HMAC tokens rejected with diagnostics', () => {
+    assert.equal(verifyActivationToken('', DEFAULT_DEV_PUBLIC_KEY).valid, false);
+    assert.equal(verifyActivationToken('INVALID-abc', DEFAULT_DEV_PUBLIC_KEY).valid, false);
+
+    // Invalid Base64 characters
+    const invalidB64 = verifyActivationToken('WPACT-not_valid_b64!@#$', DEFAULT_DEV_PUBLIC_KEY);
+    assert.equal(invalidB64.valid, false);
+    assert.equal(invalidB64.error, 'Invalid Base64 encoding');
+    
+    // Very short (< 32 bytes)
+    const shortToken = `WPACT-${Buffer.from('short').toString('base64')}`;
+    const shortRes = verifyActivationToken(shortToken, DEFAULT_DEV_PUBLIC_KEY);
+    assert.equal(shortRes.valid, false);
+    assert.equal(shortRes.error, 'Token payload is too short');
+
+    // Legacy HMAC length (between 32 and 64 bytes)
+    const legacyBytes = Buffer.alloc(40, 0x42);
+    const legacyToken = `WPACT-${legacyBytes.toString('base64')}`;
+    const legacyRes = verifyActivationToken(legacyToken, DEFAULT_DEV_PUBLIC_KEY);
+    assert.equal(legacyRes.valid, false);
+    assert.equal(
+      legacyRes.error,
+      'Incompatible token format (detected legacy HMAC token; Ed25519 signature required)'
+    );
+
+    // Full legacy HMAC token with JSON payload (> 65 bytes total: JSON + 32-byte HMAC)
+    const legacyPayload = {
+      email: testEmail,
+      license_hash: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
+      machine_id: testMachineId,
+      seat: 1,
+      max_seats: 3,
+      activated_at: 1789500000,
+    };
+    const legacyJsonBytes = Buffer.from(JSON.stringify(legacyPayload), 'utf8');
+    const legacyHmacSig = crypto.createHmac('sha256', 'old-hmac-secret').update(legacyJsonBytes).digest();
+    const fullLegacyToken = `WPACT-${Buffer.concat([legacyJsonBytes, legacyHmacSig]).toString('base64')}`;
+    assert.ok(Buffer.from(fullLegacyToken.slice(6), 'base64').length >= 65, 'Legacy token must be >= 65 bytes');
+    const fullLegacyRes = verifyActivationToken(fullLegacyToken, DEFAULT_DEV_PUBLIC_KEY);
+    assert.equal(fullLegacyRes.valid, false);
+    assert.equal(
+      fullLegacyRes.error,
+      'Incompatible token format (detected legacy HMAC token; Ed25519 signature required)'
+    );
+
+    // Non-object payload rejected
+    const nonObjectToken = mintActivationToken(['not', 'an', 'object'], DEFAULT_DEV_PRIVATE_KEY);
+    const nonObjectRes = verifyActivationToken(nonObjectToken, DEFAULT_DEV_PUBLIC_KEY);
+    assert.equal(nonObjectRes.valid, false);
+    assert.equal(nonObjectRes.error, 'Corrupt token JSON: payload must be a JSON object');
+  });
+
+  // 22. Strict secret hygiene: private key is NEVER leaked in responses
+  it('22. Strict secret hygiene: private key is NEVER leaked in responses', async () => {
+    const customSecret = '9999999999999999999999999999999999999999999999999999999999999999';
+    await withEnvAsync(
+      {
+        NODE_ENV: 'test',
+        ACTIVATION_TOKEN_PRIVATE_KEY: customSecret,
+        UPSTASH_REDIS_REST_URL: undefined,
+        UPSTASH_REDIS_REST_TOKEN: undefined,
+        STRIPE_SECRET_KEY: undefined,
+      },
+      async () => {
+        const req = createMockReq({
+          method: 'POST',
+          body: {
+            license_key: validKey,
+            machine_id: testMachineId,
+          },
+        });
+        const res = createMockRes();
+        await activateHandler(req, res);
+
+        assert.equal(res.statusCode, 200);
+        const serialized = JSON.stringify(res.body);
+        assert.ok(
+          !serialized.includes(customSecret),
+          'Response payload must NEVER contain the private key seed!'
+        );
+      }
+    );
+  });
+
+  // 23. Production lockdown: missing or default private key returns 500
+  it('23. Production lockdown: missing or default private key returns 500', async () => {
+    // Missing private key in production returns 500
+    await withEnvAsync(
+      {
+        NODE_ENV: 'production',
+        UPSTASH_REDIS_REST_URL: 'https://mock-redis.upstash.io',
+        UPSTASH_REDIS_REST_TOKEN: 'mock-token',
+        ACTIVATION_TOKEN_PRIVATE_KEY: undefined,
+      },
+      async () => {
+        const req = createMockReq({
+          method: 'POST',
+          body: {
+            license_key: validKey,
+            machine_id: testMachineId,
+          },
+        });
+        const res = createMockRes();
+        await activateHandler(req, res);
+
+        assert.equal(res.statusCode, 500);
+        assert.equal(res.body?.error, 'Server token signing key configuration error');
+      }
+    );
+
+    // Default dev private key in production returns 500
+    await withEnvAsync(
+      {
+        NODE_ENV: 'production',
+        UPSTASH_REDIS_REST_URL: 'https://mock-redis.upstash.io',
+        UPSTASH_REDIS_REST_TOKEN: 'mock-token',
+        ACTIVATION_TOKEN_PRIVATE_KEY: DEFAULT_DEV_PRIVATE_KEY,
+      },
+      async () => {
+        const req = createMockReq({
+          method: 'POST',
+          body: {
+            license_key: validKey,
+            machine_id: testMachineId,
+          },
+        });
+        const res = createMockRes();
+        await activateHandler(req, res);
+
+        assert.equal(res.statusCode, 500);
+        assert.equal(res.body?.error, 'Server token signing key configuration error');
+      }
+    );
   });
 });
