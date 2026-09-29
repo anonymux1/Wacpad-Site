@@ -306,7 +306,7 @@ describe('Security: Server-Level Controls (HTTP Server Required)', () => {
   });
 
   it('17. Rate limiting in lookup: verify 6th request returns 429', async () => {
-    const clientIp = '198.51.100.77';
+    const clientIp = `198.51.100.${Math.floor(Math.random() * 200) + 10}`;
 
     // Send 5 rapid requests from the same client IP
     for (let i = 0; i < 5; i++) {

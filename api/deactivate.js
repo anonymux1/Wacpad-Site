@@ -3,7 +3,7 @@
  * @description Removes a machine_id from the active registry for a given license.
  */
 
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { Redis } from '@upstash/redis';
 import { verifyLicenseKey } from '../lib/licensing.js';
 import { devMockMachines } from '../lib/db.js';

@@ -1,8 +1,11 @@
 # Dependencies
 node_modules/
 
-# Production builds & Vercel
+# Production builds & Cloudflare / Vercel
 .vercel/
+.wrangler/
+_worker.bundle*
+_worker.js
 dist/
 
 # Local Environment Variables

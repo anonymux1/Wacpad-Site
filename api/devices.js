@@ -3,7 +3,7 @@
  * @description Lists active devices registered to a WacPad Pro license key.
  */
 
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { Redis } from '@upstash/redis';
 import { verifyLicenseKey } from '../lib/licensing.js';
 import { devMockMachines } from '../lib/db.js';

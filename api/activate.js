@@ -5,7 +5,7 @@
  * Redis Lua scripts to eliminate activation race conditions.
  */
 
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import Stripe from 'stripe';
 import { Redis } from '@upstash/redis';
 import { verifyLicenseKey } from '../lib/licensing.js';
