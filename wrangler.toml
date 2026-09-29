@@ -1,10 +1,14 @@
-# Cloudflare Pages Configuration for WacPad
-# https://developers.cloudflare.com/pages/functions/wrangler-configuration/
+# Cloudflare Worker & Pages Configuration for WacPad
+# https://developers.cloudflare.com/workers/static-assets/
 
 name = "wacpad-site"
-pages_build_output_dir = "public"
+main = "worker.js"
 compatibility_date = "2024-09-01"
 compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
 
 [vars]
 NODE_ENV = "production"

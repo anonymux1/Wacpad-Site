@@ -116,3 +116,58 @@ describe('Cloudflare Pages Adapter & Router', () => {
     assert.equal(seenEnvVal, customSecret);
   });
 });
+
+describe('Cloudflare Worker (worker.js) Entry Point', () => {
+  it('7. worker.fetch dispatches /api/get-license to onRequest handler', async () => {
+    const { default: worker } = await import('../worker.js');
+    const req = new Request('https://wacpad-site.workers.dev/api/get-license?session_id=mock_worker&mock=true&email=artist@wacpad.io', {
+      method: 'GET',
+    });
+
+    const res = await worker.fetch(req, {
+      NODE_ENV: 'development',
+      STRIPE_SECRET_KEY: undefined,
+    });
+
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.ok(body.licenseKey?.startsWith('WP1-'));
+    assert.equal(body.email, 'artist@wacpad.io');
+  });
+
+  it('8. worker.fetch delegates static asset requests to env.ASSETS.fetch', async () => {
+    const { default: worker } = await import('../worker.js');
+    let assetFetchCalled = false;
+
+    const mockAssets = {
+      fetch: async (request) => {
+        assetFetchCalled = true;
+        return new Response('<!DOCTYPE html><html><body>WacPad</body></html>', {
+          status: 200,
+          headers: { 'Content-Type': 'text/html' },
+        });
+      },
+    };
+
+    const req = new Request('https://wacpad-site.workers.dev/', {
+      method: 'GET',
+    });
+
+    const res = await worker.fetch(req, { ASSETS: mockAssets });
+    assert.equal(res.status, 200);
+    assert.equal(assetFetchCalled, true);
+    const text = await res.text();
+    assert.ok(text.includes('WacPad'));
+  });
+
+  it('9. worker.fetch returns 404 when non-API route has no ASSETS binding', async () => {
+    const { default: worker } = await import('../worker.js');
+    const req = new Request('https://wacpad-site.workers.dev/unknown-asset.png', {
+      method: 'GET',
+    });
+
+    const res = await worker.fetch(req, {});
+    assert.equal(res.status, 404);
+  });
+});
+
