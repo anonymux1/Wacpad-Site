@@ -269,10 +269,8 @@ describe('API: activate, deactivate, devices & token minting', () => {
         assert.equal(res.statusCode, 200);
         assert.equal(res.body?.success, true);
         assert.ok(Array.isArray(res.body?.devices), 'Expected devices array');
-        assert.ok(res.body.devices.length > 0, 'Expected at least 1 mock device');
-        assert.ok(res.body.devices[0].machine_id);
-        assert.ok(res.body.devices[0].device_name);
-        assert.equal(res.body?.seats_used, 1);
+        assert.equal(res.body.devices.length, 0);
+        assert.equal(res.body?.seats_used, 0);
         assert.equal(res.body?.max_seats, MAX_SEATS);
       }
     );

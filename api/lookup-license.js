@@ -1,7 +1,7 @@
 import Stripe from 'stripe';
 import { generateLicenseKey } from '../lib/licensing.js';
 import { sendLicenseEmail } from '../lib/email.js';
-import { getLicenseByEmail, saveLicenseMapping } from '../lib/db.js';
+import { getLicenseByEmail, saveLicenseMapping, getLicenseByEmailD1, saveLicenseMappingD1 } from '../lib/db.js';
 
 // Module-level rate limiting: max 5 requests per 15 minutes per IP
 const rateLimitMap = new Map();
@@ -76,9 +76,10 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Please provide a valid email address.' });
   }
 
-  // 1. First check Upstash Redis: fast lookup of existing user/email mapping
+  // 1. First check D1 / Redis database: fast lookup of existing user/email mapping
+  const d1 = req.env?.DB || process.env.DB;
   try {
-    const existingRecord = await getLicenseByEmail(email);
+    const existingRecord = d1 ? await getLicenseByEmailD1(d1, email) : await getLicenseByEmail(email);
     if (existingRecord && existingRecord.licenseKey) {
       await sendLicenseEmail({
         email,
@@ -91,7 +92,7 @@ export default async function handler(req, res) {
       });
     }
   } catch (dbErr) {
-    console.warn('[Lookup DB Warning] Upstash lookup skipped:', dbErr.message);
+    console.warn('[Lookup DB Warning] Database lookup skipped:', dbErr.message);
   }
 
   const secretKey = process.env.STRIPE_SECRET_KEY;

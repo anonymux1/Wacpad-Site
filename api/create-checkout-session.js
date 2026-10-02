@@ -12,7 +12,10 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+  const forwardedHost = req.headers?.['x-forwarded-host'] || req.headers?.host;
+  const forwardedProto = req.headers?.['x-forwarded-proto'] || 'https';
+  const inferredOrigin = forwardedHost ? `${forwardedProto}://${forwardedHost}` : null;
+  const baseUrl = process.env.BASE_URL || req.headers?.origin || inferredOrigin || 'https://wacpad.com';
   const secretKey = process.env.STRIPE_SECRET_KEY;
   const isInvalidKey = !secretKey || secretKey.startsWith('mock_') || secretKey === 'placeholder';
 

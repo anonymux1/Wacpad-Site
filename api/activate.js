@@ -9,7 +9,7 @@ import crypto from 'node:crypto';
 import Stripe from 'stripe';
 import { Redis } from '@upstash/redis';
 import { verifyLicenseKey } from '../lib/licensing.js';
-import { devMockMachines, getLicenseByEmail } from '../lib/db.js';
+import { devMockMachines, getLicenseByEmail, registerDeviceD1, getLicenseByEmailD1 } from '../lib/db.js';
 
 export const MAX_SEATS = 3;
 
@@ -48,21 +48,28 @@ return { 1, new_count, "newly_activated" }
  * @param {string} email - Customer email
  * @returns {Promise<boolean>}
  */
-export async function verifyStripePurchase(stripe, email) {
+export async function verifyStripePurchase(stripe, email, d1 = null) {
   try {
     const normalizedEmail = (email || '').trim().toLowerCase();
     if (!normalizedEmail) {
       return false;
     }
 
-    // 1. First check the Redis/mock database for the license key (saved during webhook / purchase flow)
+    // 1. First check the D1 / Redis / mock database for the license key
     try {
-      const existing = await getLicenseByEmail(normalizedEmail);
-      if (existing && existing.licenseKey) {
-        return true;
+      if (d1) {
+        const existing = await getLicenseByEmailD1(d1, normalizedEmail);
+        if (existing && existing.licenseKey) {
+          return true;
+        }
+      } else {
+        const existing = await getLicenseByEmail(normalizedEmail);
+        if (existing && existing.licenseKey) {
+          return true;
+        }
       }
     } catch (dbErr) {
-      console.warn('[Stripe Purchase Verification] Redis lookup skipped:', dbErr.message);
+      console.warn('[Stripe Purchase Verification] Database lookup skipped:', dbErr.message);
     }
 
     if (!stripe) {
@@ -330,11 +337,12 @@ export default async function handler(req, res) {
   const email = verification.payload.email.toLowerCase().trim();
   const licenseHash = crypto.createHash('sha256').update(license_key.trim()).digest('hex');
 
-  // 2. Production database configuration guard
+  // 2. Production database configuration guard (accepts Cloudflare D1 or Upstash Redis)
+  const d1 = req.env?.DB || process.env.DB;
   const redisUrl = process.env.UPSTASH_KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
   const redisToken = process.env.UPSTASH_KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
 
-  if (process.env.NODE_ENV === 'production' && (!redisUrl || !redisToken)) {
+  if (process.env.NODE_ENV === 'production' && !d1 && (!redisUrl || !redisToken)) {
     return res.status(500).json({ error: 'Activation database unconfigured' });
   }
 
@@ -355,7 +363,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Stripe service unconfigured in production' });
     }
     const stripe = (await import('stripe')).default(stripeKey);
-    const hasPaid = await verifyStripePurchase(stripe, email);
+    const hasPaid = await verifyStripePurchase(stripe, email, d1);
     if (!hasPaid) {
       return res.status(403).json({
         error: 'No valid purchase record found for this license key in Stripe. Key cannot be activated.',
@@ -363,7 +371,7 @@ export default async function handler(req, res) {
     }
   } else if (!isMockMode) {
     const stripe = (await import('stripe')).default(stripeKey);
-    const hasPaid = await verifyStripePurchase(stripe, email);
+    const hasPaid = await verifyStripePurchase(stripe, email, d1);
     if (!hasPaid) {
       return res.status(403).json({
         error: 'No valid purchase record found for this license key in Stripe. Key cannot be activated.',
@@ -371,7 +379,7 @@ export default async function handler(req, res) {
     }
   }
 
-  // 4. Connect to Upstash Redis
+  // 4. Register Device Seat (Cloudflare D1 SQL, Upstash Redis, or Dev Mock)
   const redisKey = `license:${licenseHash}:machines`;
   const machineData = JSON.stringify({
     machine_id,
@@ -384,7 +392,22 @@ export default async function handler(req, res) {
   let seatCount;
   let reason;
 
-  if (!redisUrl || !redisToken) {
+  if (d1) {
+    const d1Result = await registerDeviceD1(
+      d1,
+      licenseHash,
+      machine_id,
+      device_name || 'Desktop Workstation',
+      os || 'Unknown OS',
+      MAX_SEATS
+    );
+    if (d1Result.error) {
+      return res.status(500).json({ error: 'Failed to process activation request' });
+    }
+    granted = d1Result.granted ? 1 : 0;
+    seatCount = d1Result.seatCount;
+    reason = d1Result.reason;
+  } else if (!redisUrl || !redisToken) {
     if (process.env.NODE_ENV === 'production') {
       return res.status(500).json({ error: 'Activation database unconfigured' });
     }

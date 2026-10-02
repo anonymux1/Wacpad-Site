@@ -6,7 +6,7 @@
 import crypto from 'node:crypto';
 import { Redis } from '@upstash/redis';
 import { verifyLicenseKey } from '../lib/licensing.js';
-import { devMockMachines } from '../lib/db.js';
+import { devMockMachines, deactivateDeviceD1 } from '../lib/db.js';
 
 /**
  * Handles deactivating a device seat for a verified WacPad Pro license.
@@ -38,11 +38,24 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: verification.error || 'Invalid license key' });
   }
 
+  const d1 = req.env?.DB || process.env.DB;
   const redisUrl = process.env.UPSTASH_KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
   const redisToken = process.env.UPSTASH_KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
 
   const licenseHash = crypto.createHash('sha256').update(license_key.trim()).digest('hex');
   const redisKey = `license:${licenseHash}:machines`;
+
+  if (d1) {
+    const result = await deactivateDeviceD1(d1, licenseHash, machine_id);
+    if (!result.success) {
+      return res.status(500).json({ error: result.error || 'Failed to deactivate device' });
+    }
+    return res.status(200).json({
+      success: true,
+      message: 'Device successfully deactivated',
+      seats_used: result.seatsUsed,
+    });
+  }
 
   if (!redisUrl || !redisToken) {
     if (process.env.NODE_ENV !== 'production') {

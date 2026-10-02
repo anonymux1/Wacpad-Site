@@ -1,7 +1,7 @@
 import Stripe from 'stripe';
 import { generateLicenseKey } from '../lib/licensing.js';
 import { sendLicenseEmail } from '../lib/email.js';
-import { saveLicenseMapping } from '../lib/db.js';
+import { saveLicenseMapping, saveLicenseMappingD1 } from '../lib/db.js';
 
 // Disable default Vercel body parsing so Stripe webhook signature can be verified against raw buffer
 export const config = {
@@ -129,17 +129,31 @@ export default async function handler(req, res) {
         const licenseKey = generateLicenseKey(customerEmail, 'ProLifetime', null, session.created);
         console.log(`[Webhook] Issued license key: ${licenseKey} to ${customerEmail}`);
 
-        // Persist user email <-> license key mapping in Upstash Redis
-        await saveLicenseMapping({
-          email: customerEmail,
-          customerId: session.customer,
-          sessionId: session.id,
-          licenseKey,
-          tier: 'ProLifetime',
-          createdAt: session.created,
-        }).catch((dbErr) => {
-          console.warn('[DB Warning] Failed to save license mapping in webhook:', dbErr.message);
-        });
+        // Persist user email <-> license key mapping in Cloudflare D1 or Redis/mock
+        const d1 = req.env?.DB || process.env.DB;
+        if (d1) {
+          await saveLicenseMappingD1(d1, {
+            email: customerEmail,
+            customerId: session.customer,
+            sessionId: session.id,
+            licenseKey,
+            tier: 'ProLifetime',
+            createdAt: session.created,
+          }).catch((dbErr) => {
+            console.warn('[D1 Warning] Failed to save license mapping in webhook:', dbErr.message);
+          });
+        } else {
+          await saveLicenseMapping({
+            email: customerEmail,
+            customerId: session.customer,
+            sessionId: session.id,
+            licenseKey,
+            tier: 'ProLifetime',
+            createdAt: session.created,
+          }).catch((dbErr) => {
+            console.warn('[DB Warning] Failed to save license mapping in webhook:', dbErr.message);
+          });
+        }
 
         // Deliver via email (Resend or simulated)
         await sendLicenseEmail({

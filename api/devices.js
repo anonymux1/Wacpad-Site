@@ -6,7 +6,7 @@
 import crypto from 'node:crypto';
 import { Redis } from '@upstash/redis';
 import { verifyLicenseKey } from '../lib/licensing.js';
-import { devMockMachines } from '../lib/db.js';
+import { devMockMachines, listDevicesD1 } from '../lib/db.js';
 
 export const MAX_SEATS = 3;
 
@@ -40,17 +40,28 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: verification.error || 'Invalid license key' });
   }
 
+  const d1 = req.env?.DB || process.env.DB;
   const redisUrl = process.env.UPSTASH_KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
   const redisToken = process.env.UPSTASH_KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
 
   const licenseHash = crypto.createHash('sha256').update(license_key.trim()).digest('hex');
   const redisKey = `license:${licenseHash}:machines`;
 
+  if (d1) {
+    const devices = await listDevicesD1(d1, licenseHash);
+    return res.status(200).json({
+      success: true,
+      seats_used: devices.length,
+      max_seats: MAX_SEATS,
+      devices,
+    });
+  }
+
   if (!redisUrl || !redisToken) {
     if (process.env.NODE_ENV !== 'production') {
       const machines = devMockMachines.get(redisKey);
       const devices = [];
-      if (machines && machines.size > 0) {
+      if (machines) {
         for (const [mid, dataStr] of machines.entries()) {
           try {
             const parsed = typeof dataStr === 'string' ? JSON.parse(dataStr) : dataStr;

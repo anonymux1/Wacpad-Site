@@ -9,6 +9,14 @@ compatibility_flags = ["nodejs_compat"]
 [assets]
 directory = "./public"
 binding = "ASSETS"
+pages_build_output_dir = "public"
+
+# Native Cloudflare D1 SQL Database Binding
+# Bound in Cloudflare Pages Dashboard -> Settings -> Functions -> D1 Database Bindings
+[[d1_databases]]
+binding = "wacpad binding"
+database_name = "wacpad-db"
+database_id = "5f47ef97-ae6a-4211-a170-831d342cc19b"
 
 [vars]
 NODE_ENV = "production"

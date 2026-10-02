@@ -9,7 +9,7 @@
     "pages:dev": "wrangler pages dev public --compatibility-flags=nodejs_compat",
     "deploy": "wrangler deploy",
     "start": "node server.js",
-    "test": "node --test --test-concurrency=1 test/licensing.test.js test/api.test.js test/security.test.js test/activation.test.js test/recovery.test.js test/cloudflare-adapter.test.js",
+    "test": "node --test --test-concurrency=1 test/licensing.test.js test/api.test.js test/security.test.js test/activation.test.js test/recovery.test.js test/cloudflare-adapter.test.js test/d1.test.js",
     "test:stripe": "node --test test/test-stripe-e2e.js",
     "gen:keys": "node scripts/generate-keys.js"
   },

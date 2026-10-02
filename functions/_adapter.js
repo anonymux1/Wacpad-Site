@@ -30,6 +30,12 @@ export async function adaptCloudflareRequest(context, handler) {
   }
 
   if (env && typeof env === 'object') {
+    // Defensively resolve D1 database binding from 'wacpad binding' (or other aliases) to env.DB
+    const d1 = env['wacpad binding'] || env.DB || env.wacpad_binding || env.WACPAD_DB;
+    if (d1) {
+      env.DB = d1;
+    }
+
     for (const [key, value] of Object.entries(env)) {
       if (typeof value === 'string') {
         process.env[key] = value;
@@ -99,6 +105,7 @@ export async function adaptCloudflareRequest(context, handler) {
     headers,
     body,
     rawBody,
+    env, // Pass Cloudflare env (with D1 binding `env.DB`) directly to handler
     // Emulate stream methods for any callers inspecting req
     async *[Symbol.asyncIterator]() {
       if (rawBody) {

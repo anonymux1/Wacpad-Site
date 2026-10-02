@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
 import { generateLicenseKey } from '../lib/licensing.js';
-import { saveLicenseMapping } from '../lib/db.js';
+import { saveLicenseMapping, saveLicenseMappingD1 } from '../lib/db.js';
 
 /**
  * Retrieves and generates the license key for a paid Stripe checkout session.
@@ -69,17 +69,31 @@ export default async function handler(req, res) {
     // Generate cryptographic license key using immutable Stripe session creation timestamp
     const licenseKey = generateLicenseKey(customerEmail, 'ProLifetime', null, session.created);
 
-    // Persist user email <-> license key mapping in Upstash Redis
-    await saveLicenseMapping({
-      email: customerEmail,
-      customerId: session.customer,
-      sessionId: session.id,
-      licenseKey,
-      tier: 'ProLifetime',
-      createdAt: session.created,
-    }).catch((dbErr) => {
-      console.warn('[DB Warning] Failed to save license mapping to Upstash:', dbErr.message);
-    });
+    // Persist user email <-> license key mapping in Cloudflare D1 or Upstash Redis
+    const d1 = req.env?.DB || process.env.DB;
+    if (d1) {
+      await saveLicenseMappingD1(d1, {
+        email: customerEmail,
+        customerId: session.customer,
+        sessionId: session.id,
+        licenseKey,
+        tier: 'ProLifetime',
+        createdAt: session.created,
+      }).catch((dbErr) => {
+        console.warn('[DB Warning] Failed to save license mapping to D1 in get-license:', dbErr.message);
+      });
+    } else {
+      await saveLicenseMapping({
+        email: customerEmail,
+        customerId: session.customer,
+        sessionId: session.id,
+        licenseKey,
+        tier: 'ProLifetime',
+        createdAt: session.created,
+      }).catch((dbErr) => {
+        console.warn('[DB Warning] Failed to save license mapping to Upstash:', dbErr.message);
+      });
+    }
 
     return res.status(200).json({
       success: true,
