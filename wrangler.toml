@@ -9,7 +9,6 @@ compatibility_flags = ["nodejs_compat"]
 [assets]
 directory = "./public"
 binding = "ASSETS"
-pages_build_output_dir = "public"
 
 # Native Cloudflare D1 SQL Database Binding
 # Bound in Cloudflare Pages Dashboard -> Settings -> Functions -> D1 Database Bindings
