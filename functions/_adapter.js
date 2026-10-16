@@ -48,7 +48,7 @@ export async function adaptCloudflareRequest(context, handler) {
   const corsHeaders = {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, stripe-signature, Authorization, X-Requested-With',
+    'Access-Control-Allow-Headers': 'Content-Type, stripe-signature, webhook-signature, webhook-id, webhook-timestamp, x-razorpay-signature, Authorization, X-Requested-With',
     'Access-Control-Max-Age': '86400',
   };
 

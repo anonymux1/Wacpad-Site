@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { Buffer } from 'node:buffer';
 
 /**
  * Creates a Razorpay Order for WacPad Pro Lifetime License.
@@ -11,8 +12,8 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const keyId = process.env.RAZORPAY_KEY_ID;
-  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+  const keyId = req.env?.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID;
+  const keySecret = req.env?.RAZORPAY_KEY_SECRET || process.env.RAZORPAY_KEY_SECRET;
 
   // Retrieve amount (in paise), currency, and optional customer email/name from request
   const body = req.body || {};
@@ -47,7 +48,8 @@ export default async function handler(req, res) {
 
   try {
     const receipt = `rcpt_${Date.now()}_${crypto.randomBytes(3).toString('hex')}`;
-    const authHeader = 'Basic ' + Buffer.from(`${keyId}:${keySecret}`).toString('base64');
+    const credentials = `${keyId}:${keySecret}`;
+    const authHeader = 'Basic ' + (typeof btoa !== 'undefined' ? btoa(credentials) : Buffer.from(credentials).toString('base64'));
 
     const orderPayload = {
       amount,
@@ -87,6 +89,6 @@ export default async function handler(req, res) {
     });
   } catch (err) {
     console.error('[Razorpay Order Error]:', err);
-    return res.status(500).json({ error: 'Internal server error creating order' });
+    return res.status(500).json({ error: 'Internal server error creating order', details: err.message });
   }
 }

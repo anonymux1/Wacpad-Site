@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { Buffer } from 'node:buffer';
 import { generateLicenseKey } from '../lib/licensing.js';
 import { sendLicenseEmail } from '../lib/email.js';
 import { saveLicenseMapping, saveLicenseMappingD1 } from '../lib/db.js';
@@ -26,8 +27,8 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const webhookSecret = process.env.DODO_PAYMENTS_WEBHOOK_KEY;
-  const isProduction = process.env.NODE_ENV === 'production';
+  const webhookSecret = req.env?.DODO_PAYMENTS_WEBHOOK_KEY || process.env.DODO_PAYMENTS_WEBHOOK_KEY;
+  const isProduction = (req.env?.NODE_ENV || process.env.NODE_ENV) === 'production';
 
   const body = req.body || {};
   const sigHeader = req.headers?.['webhook-signature'];

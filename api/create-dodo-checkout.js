@@ -9,9 +9,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const apiKey = process.env.DODO_PAYMENTS_API_KEY;
-  const productId = process.env.DODO_PRODUCT_ID || 'pdt_0NpqdjR6faKYqLtCgr6Ma';
-  const isLive = process.env.DODO_ENV === 'live_mode' || apiKey?.startsWith('dodo_live_');
+  const apiKey = req.env?.DODO_PAYMENTS_API_KEY || process.env.DODO_PAYMENTS_API_KEY;
+  const productId = req.env?.DODO_PRODUCT_ID || process.env.DODO_PRODUCT_ID || 'pdt_0NpqdjR6faKYqLtCgr6Ma';
+  const isLive = (req.env?.DODO_ENV || process.env.DODO_ENV) === 'live_mode' || apiKey?.startsWith('dodo_live_');
   const dodoHost = isLive ? 'https://live.dodopayments.com' : 'https://test.dodopayments.com';
 
   const forwardedHost = req.headers?.['x-forwarded-host'] || req.headers?.host;

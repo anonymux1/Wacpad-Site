@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { Buffer } from 'node:buffer';
 import { generateLicenseKey } from '../lib/licensing.js';
 import { sendLicenseEmail } from '../lib/email.js';
 import { saveLicenseMapping, saveLicenseMappingD1 } from '../lib/db.js';
@@ -14,7 +15,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+  const keySecret = req.env?.RAZORPAY_KEY_SECRET || process.env.RAZORPAY_KEY_SECRET;
   const body = req.body || {};
 
   const orderId = body.razorpay_order_id;
