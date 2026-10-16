@@ -245,7 +245,7 @@
           <div class="pricing-header">
             <div class="badge badge-pro pricing-badge">⭐ Lifetime Pro</div>
             <h3>WacPad Pro</h3>
-            <div class="pricing-price">$14.99 <span class="pricing-period">one-time lifetime</span></div>
+            <div class="pricing-price" id="proPrice">$14.99 <span class="pricing-period" id="proPeriod">one-time lifetime</span></div>
             <p class="pricing-desc">For digital painters, animators, and concept artists.</p>
           </div>
           <ul class="pricing-features">
@@ -260,7 +260,7 @@
             <button id="buyProBtn" class="btn btn-pro btn-block">
               ⭐ Buy Pro Lifetime License — $14.99
             </button>
-            <p class="pricing-note">🔒 Secure checkout via Stripe<br>Includes automated VAT invoice & lifetime key</p>
+            <p class="pricing-note" id="proNote">🔒 Secure checkout via Dodo Payments &bull; Includes automated VAT invoice & lifetime key</p>
           </div>
         </div>
       </div>
@@ -315,6 +315,7 @@
     </div>
   </footer>
 
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="/js/main.js"></script>
 </body>
 </html>

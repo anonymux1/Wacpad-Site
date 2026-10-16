@@ -14,6 +14,13 @@ import activate from '../../api/activate.js';
 import deactivate from '../../api/deactivate.js';
 import devices from '../../api/devices.js';
 
+// New Payment Routes (Razorpay + Dodo Payments + Geo)
+import createOrder from '../../api/create-order.js';
+import verifyPayment from '../../api/verify-payment.js';
+import createDodoCheckout from '../../api/create-dodo-checkout.js';
+import webhookDodo from '../../api/webhook-dodo.js';
+import geo from '../../api/geo.js';
+
 const ROUTE_TABLE = {
   '/api/create-checkout-session': createCheckoutSession,
   '/api/get-license': getLicense,
@@ -22,6 +29,17 @@ const ROUTE_TABLE = {
   '/api/activate': activate,
   '/api/deactivate': deactivate,
   '/api/devices': devices,
+
+  // Razorpay
+  '/api/create-order': createOrder,
+  '/api/verify-payment': verifyPayment,
+
+  // Dodo Payments
+  '/api/create-dodo-checkout': createDodoCheckout,
+  '/api/webhook-dodo': webhookDodo,
+
+  // Geolocation
+  '/api/geo': geo,
 };
 
 /**

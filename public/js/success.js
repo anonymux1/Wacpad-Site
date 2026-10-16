@@ -15,6 +15,35 @@ document.addEventListener('DOMContentLoaded', async () => {
   const copyBtn = document.getElementById('copyLicenseBtn');
   const errorMessageEl = document.getElementById('errorMessage');
 
+  const directLicenseKey = params.get('license_key');
+
+  if (directLicenseKey) {
+    loadingState.style.display = 'none';
+    contentState.style.display = 'block';
+    customerEmailEl.textContent = customEmail || 'your email';
+    licenseKeyInput.value = directLicenseKey;
+
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(directLicenseKey);
+        const prevText = copyBtn.innerHTML;
+        copyBtn.innerHTML = '✓ Copied to Clipboard!';
+        copyBtn.style.background = '#10b981';
+        copyBtn.style.color = '#ffffff';
+        setTimeout(() => {
+          copyBtn.innerHTML = prevText;
+          copyBtn.style.background = '';
+          copyBtn.style.color = '';
+        }, 3000);
+      } catch (err) {
+        licenseKeyInput.select();
+        document.execCommand('copy');
+        alert('Copied to clipboard!');
+      }
+    });
+    return;
+  }
+
   if (!sessionId) {
     loadingState.style.display = 'none';
     errorState.style.display = 'block';

@@ -35,6 +35,11 @@ const apiRoutes = {
   '/api/activate': () => import('./api/activate.js'),
   '/api/deactivate': () => import('./api/deactivate.js'),
   '/api/devices': () => import('./api/devices.js'),
+  '/api/create-order': () => import('./api/create-order.js'),
+  '/api/verify-payment': () => import('./api/verify-payment.js'),
+  '/api/create-dodo-checkout': () => import('./api/create-dodo-checkout.js'),
+  '/api/webhook-dodo': () => import('./api/webhook-dodo.js'),
+  '/api/geo': () => import('./api/geo.js'),
 };
 
 const server = http.createServer(async (req, res) => {
