@@ -354,29 +354,42 @@ export default async function handler(req, res) {
     }
   }
 
-  // 3. Cross-reference Stripe to prevent forged key activation
-  const stripeKey = process.env.STRIPE_SECRET_KEY;
-  const isMockMode = !stripeKey || stripeKey.startsWith('mock_') || stripeKey === 'placeholder';
+  // 3. Verify Purchase Record across Cloudflare D1, Upstash Redis, or legacy Stripe
+  const isProduction = (req.env?.NODE_ENV || process.env.NODE_ENV) === 'production';
+  let hasPaid = false;
 
-  if (process.env.NODE_ENV === 'production') {
-    if (isMockMode) {
-      return res.status(500).json({ error: 'Stripe service unconfigured in production' });
+  // First check Cloudflare D1 or Upstash Redis database (where Razorpay & Dodo store license records)
+  try {
+    if (d1) {
+      const existing = await getLicenseByEmailD1(d1, email);
+      if (existing && existing.licenseKey) {
+        hasPaid = true;
+      }
+    } else if (redisUrl && redisToken) {
+      const existing = await getLicenseByEmail(email);
+      if (existing && existing.licenseKey) {
+        hasPaid = true;
+      }
     }
-    const stripe = (await import('stripe')).default(stripeKey);
-    const hasPaid = await verifyStripePurchase(stripe, email, d1);
-    if (!hasPaid) {
-      return res.status(403).json({
-        error: 'No valid purchase record found for this license key in Stripe. Key cannot be activated.',
-      });
+  } catch (dbErr) {
+    console.warn('[Activation Purchase Verification] DB lookup skipped:', dbErr.message);
+  }
+
+  // Fall back to legacy Stripe if configured
+  const stripeKey = req.env?.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY;
+  if (!hasPaid && stripeKey && !stripeKey.startsWith('mock_') && stripeKey !== 'placeholder') {
+    try {
+      const stripe = (await import('stripe')).default(stripeKey);
+      hasPaid = await verifyStripePurchase(stripe, email, d1);
+    } catch (stripeErr) {
+      console.warn('[Activation Purchase Verification] Stripe check skipped:', stripeErr.message);
     }
-  } else if (!isMockMode) {
-    const stripe = (await import('stripe')).default(stripeKey);
-    const hasPaid = await verifyStripePurchase(stripe, email, d1);
-    if (!hasPaid) {
-      return res.status(403).json({
-        error: 'No valid purchase record found for this license key in Stripe. Key cannot be activated.',
-      });
-    }
+  }
+
+  if (isProduction && !hasPaid) {
+    return res.status(403).json({
+      error: 'No valid purchase record found for this license key. Key cannot be activated.',
+    });
   }
 
   // 4. Register Device Seat (Cloudflare D1 SQL, Upstash Redis, or Dev Mock)
