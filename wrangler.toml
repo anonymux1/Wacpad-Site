@@ -19,3 +19,6 @@ database_id = "5f47ef97-ae6a-4211-a170-831d342cc19b"
 
 [vars]
 NODE_ENV = "production"
+DODO_ENV = "test_mode"
+DODO_PRODUCT_ID = "pdt_0NpqdjR6faKYqLtCgr6Ma"
+RAZORPAY_KEY_ID = "rzp_test_ToUiqcDV3uJUSh"
