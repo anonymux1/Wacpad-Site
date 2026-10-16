@@ -20,6 +20,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const proPrice = document.getElementById('proPrice');
   const proNote = document.getElementById('proNote');
   const checkoutBtn = document.getElementById('buyProBtn');
+  const heroProBtn = document.getElementById('heroProBtn');
+  const navProBtn = document.getElementById('navProBtn');
 
   let geoState = {
     isIndia: false,
@@ -52,7 +54,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       proPrice.innerHTML = `₹1,299 <span class="pricing-period">one-time lifetime</span>`;
     }
     if (checkoutBtn) {
-      checkoutBtn.innerHTML = `⭐ Buy Pro Lifetime — ₹1,299 (UPI / Cards)`;
+      checkoutBtn.innerHTML = `⭐ Buy Pro Lifetime License — ₹1,299`;
+    }
+    if (heroProBtn) {
+      heroProBtn.innerHTML = `⭐ Upgrade to Pro — ₹1,299`;
+    }
+    if (navProBtn) {
+      navProBtn.innerHTML = `⭐ Get Pro — ₹1,299`;
     }
     if (proNote) {
       proNote.innerHTML = `🔒 Secure checkout via Razorpay &bull; Instant UPI QR, Cards & Netbanking`;
