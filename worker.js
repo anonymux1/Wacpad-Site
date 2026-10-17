@@ -18,6 +18,11 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
+    // 0. Redirect shortcut routes
+    if (url.pathname === '/pro' || url.pathname === '/pro/') {
+      return Response.redirect(`${url.origin}/#pricing`, 302);
+    }
+
     // 1. Dispatch API routes through our universal adapter router
     if (url.pathname.startsWith('/api/')) {
       return onRequest({ request, env, ctx });

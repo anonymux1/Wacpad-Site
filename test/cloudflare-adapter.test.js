@@ -169,5 +169,16 @@ describe('Cloudflare Worker (worker.js) Entry Point', () => {
     const res = await worker.fetch(req, {});
     assert.equal(res.status, 404);
   });
+
+  it('10. worker.fetch redirects /pro to /#pricing with 302 status', async () => {
+    const { default: worker } = await import('../worker.js');
+    const req = new Request('https://wacpad-site.workers.dev/pro', {
+      method: 'GET',
+    });
+
+    const res = await worker.fetch(req, {});
+    assert.equal(res.status, 302);
+    assert.equal(res.headers.get('location'), 'https://wacpad-site.workers.dev/#pricing');
+  });
 });
 
