@@ -152,4 +152,36 @@ test('Dodo Payments & Geolocation Integration Suite', async (t) => {
     assert.equal(data.formattedPrice, '$14.99');
     assert.equal(data.provider, 'dodo');
   });
+
+  await t.test('GET /api/geo?geo=US query override overrides cf-ipcountry: IN header', async () => {
+    const { req, res } = mockReqRes({
+      method: 'GET',
+      headers: { 'cf-ipcountry': 'IN' },
+      query: { geo: 'US' },
+    });
+
+    await geoHandler(req, res);
+
+    assert.equal(res._getStatusCode(), 200);
+    const data = res._getData();
+    assert.equal(data.isIndia, false);
+    assert.equal(data.country, 'US');
+    assert.equal(data.provider, 'dodo');
+  });
+
+  await t.test('GET /api/geo?geo=IN query override overrides cf-ipcountry: US header', async () => {
+    const { req, res } = mockReqRes({
+      method: 'GET',
+      headers: { 'cf-ipcountry': 'US' },
+      query: { geo: 'IN' },
+    });
+
+    await geoHandler(req, res);
+
+    assert.equal(res._getStatusCode(), 200);
+    const data = res._getData();
+    assert.equal(data.isIndia, true);
+    assert.equal(data.country, 'IN');
+    assert.equal(data.provider, 'razorpay');
+  });
 });

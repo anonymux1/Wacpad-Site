@@ -5,7 +5,8 @@
  * @param {import('http').ServerResponse} res
  */
 export default async function handler(req, res) {
-  const countryHeader = req.headers?.['cf-ipcountry'] || req.headers?.['x-country-code'] || '';
+  const queryOverride = (req.query?.geo || req.query?.country || '').toUpperCase();
+  const countryHeader = queryOverride || req.headers?.['cf-ipcountry'] || req.headers?.['x-country-code'] || '';
   const country = countryHeader.toUpperCase();
   const isIndia = country === 'IN';
 

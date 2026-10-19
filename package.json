@@ -11,6 +11,11 @@
     "start": "node server.js",
     "test": "node --test test/licensing.test.js test/api.test.js test/security.test.js test/activation.test.js test/recovery.test.js test/cloudflare-adapter.test.js test/d1.test.js test/razorpay.test.js test/dodo.test.js test/e2e-dual-checkout.test.js",
     "test:stripe": "node --test test/test-stripe-e2e.js",
+    "test:hiwl": "node test/hiwl/run_interactive.js",
+    "test:hiwl:razorpay": "node test/hiwl/run_interactive.js --rail razorpay",
+    "test:hiwl:dodo": "node test/hiwl/run_interactive.js --rail dodo",
+    "test:hiwl:playwright": "node test/hiwl/run_playwright.js",
+    "test:hiwl:playwright:headed": "node test/hiwl/run_playwright.js --headed",
     "gen:keys": "node scripts/generate-keys.js"
   },
   "dependencies": {
@@ -22,5 +27,8 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "playwright": "^1.64.1"
   }
 }

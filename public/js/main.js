@@ -31,7 +31,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
 
   try {
-    const geoRes = await fetch('/api/geo');
+    const urlParams = new URLSearchParams(window.location.search);
+    const geoParam = urlParams.get('geo') || urlParams.get('country');
+    const geoEndpoint = geoParam ? `/api/geo?geo=${encodeURIComponent(geoParam)}` : '/api/geo';
+    const geoRes = await fetch(geoEndpoint);
     if (geoRes.ok) {
       geoState = await geoRes.json();
     } else {
