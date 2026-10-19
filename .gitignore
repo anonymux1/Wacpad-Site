@@ -23,3 +23,8 @@ yarn-error.log*
 # OS artifacts
 .DS_Store
 Thumbs.db
+
+# Exclude local desktop test harnesses from Cloudflare Pages deployment
+test/hiwl/
+scripts/
+
