@@ -12,11 +12,6 @@ export const DEFAULT_HOST_PORT = 8765;
 export const DEFAULT_HOST_URL = `http://127.0.0.1:${DEFAULT_HOST_PORT}`;
 export const DEFAULT_WS_URL = `ws://127.0.0.1:${DEFAULT_HOST_PORT}/ws`;
 export const DEFAULT_PORTAL_URL = process.env.WACPAD_PORTAL_URL || 'https://wacpad.com';
-
-/**
- * Health check the local WacPad host server.
- *
- * @param {string} hostUrl
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 const execFileAsync = promisify(execFile);

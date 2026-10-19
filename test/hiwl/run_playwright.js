@@ -36,7 +36,8 @@ async function testRazorpayAutomated(browser, portalUrl, hostUrl, wsUrl) {
 
   const url = `${portalUrl}/?geo=IN#pricing`;
   console.log(`[1/5] Navigating to: ${url}`);
-  await page.goto(url, { waitUntil: 'networkidle' });
+  await page.goto(url, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(1500);
 
   // Verify Razorpay button is rendered
   const buyBtn = page.locator('#buyProBtn');
@@ -49,34 +50,53 @@ async function testRazorpayAutomated(browser, portalUrl, hostUrl, wsUrl) {
 
   // Wait for Razorpay frame
   console.log('[*] Waiting for Razorpay Checkout iframe...');
-  const rzpFrame = page.frameLocator('iframe[name="rzp_checkout_form"], iframe.razorpay-checkout-frame');
-  
-  // Wait for either the iframe or bank selector
-  try {
-    const netbankingBtn = rzpFrame.locator('text=Netbanking, [data-testid="netbanking-btn"], div:has-text("Netbanking")').first();
-    await netbankingBtn.waitFor({ state: 'visible', timeout: 12000 });
-    console.log('[+] Razorpay modal active. Selecting Netbanking...');
-    await netbankingBtn.click();
-
-    // Select SBI or first bank
-    const bankOption = rzpFrame.locator('text=State Bank of India, text=SBI, [data-testid="bank-sbi"], div:has-text("SBI")').first();
-    await bankOption.waitFor({ state: 'visible', timeout: 6000 });
-    await bankOption.click();
-
-    // Click Pay
-    const paySubmitBtn = rzpFrame.locator('button:has-text("Pay"), [data-testid="pay-button"]').first();
-    await paySubmitBtn.click();
-    console.log('[+] Clicked Pay button in Razorpay modal.');
-  } catch (err) {
-    console.warn(`[!] Note on Razorpay DOM automation: ${err.message}`);
+  let rzpFrame;
+  for (let i = 0; i < 20; i++) {
+    rzpFrame = page.frames().find(f => f.url().includes('razorpay.com/v1/checkout'));
+    if (rzpFrame) break;
+    await page.waitForTimeout(500);
+  }
+  if (!rzpFrame) {
+    throw new Error('Razorpay checkout iframe was not found');
   }
 
-  // Handle Razorpay Sandbox Bank Popup Window if spawned
-  const popupPromise = page.waitForEvent('popup', { timeout: 10000 }).catch(() => null);
+  // Handle contact step if present
+  const mobileInput = rzpFrame.locator('input[name="contact"], input[type="tel"]').first();
+  if (await mobileInput.isVisible({ timeout: 4000 }).catch(() => false)) {
+    console.log('[*] Filling mobile number in Razorpay...');
+    await mobileInput.fill('9999999999');
+    const continueBtn = rzpFrame.locator('button:has-text("Continue")').first();
+    if (await continueBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await continueBtn.click();
+      await page.waitForTimeout(1500);
+    }
+  }
+
+  // Select Netbanking
+  console.log('[*] Selecting Netbanking...');
+  const netbankingBtn = rzpFrame.locator('text=Netbanking, [data-testid="netbanking-btn"], div:has-text("Netbanking")').first();
+  await netbankingBtn.waitFor({ state: 'visible', timeout: 15000 });
+  await netbankingBtn.click();
+
+  // Select SBI
+  console.log('[*] Selecting State Bank of India...');
+  const sbiOption = rzpFrame.locator('text=State Bank of India, text=SBI, [data-testid="bank-sbi"], div:has-text("SBI")').first();
+  await sbiOption.waitFor({ state: 'visible', timeout: 10000 });
+  await sbiOption.click();
+
+  // Listen for popup
+  const popupPromise = page.waitForEvent('popup', { timeout: 15000 }).catch(() => null);
+
+  // Click Pay
+  const payBtn = rzpFrame.locator('button:has-text("Pay")').first();
+  await payBtn.click();
+  console.log('[+] Clicked Pay button in Razorpay modal.');
+
   const popup = await popupPromise;
   if (popup) {
     console.log(`[+] Razorpay Test Bank Popup detected: ${popup.url()}`);
     await popup.waitForLoadState('domcontentloaded');
+    await popup.waitForTimeout(1000);
     const successBtn = popup.locator('button:has-text("Success"), input[value="Success"], a:has-text("Success")').first();
     await successBtn.waitFor({ state: 'visible', timeout: 8000 });
     await successBtn.click();
@@ -146,7 +166,8 @@ async function testDodoAutomated(browser, portalUrl, hostUrl, wsUrl) {
 
   const url = `${portalUrl}/?geo=US#pricing`;
   console.log(`[1/5] Navigating to: ${url}`);
-  await page.goto(url, { waitUntil: 'networkidle' });
+  await page.goto(url, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(1500);
 
   const buyBtn = page.locator('#buyProBtn');
   await buyBtn.waitFor({ state: 'visible', timeout: 10000 });
@@ -160,40 +181,47 @@ async function testDodoAutomated(browser, portalUrl, hostUrl, wsUrl) {
   await page.waitForURL(/checkout\.dodopayments\.com/, { timeout: 20000 });
   console.log(`[+] Reached Dodo Hosted Checkout: ${page.url()}`);
 
-  try {
-    // Fill Customer Email if not prefilled
-    const emailInput = page.locator('input[type="email"], input[name="email"], input[id*="email"]').first();
-    if (await emailInput.isVisible({ timeout: 4000 }).catch(() => false)) {
-      await emailInput.fill(testEmail);
-    }
+  // Step 1: Billing info
+  const nameInput = page.locator('input[name="fullName"]');
+  await nameInput.waitFor({ state: 'visible', timeout: 10000 });
+  await nameInput.fill('WacPad Global Tester');
 
-    // Fill Card Number
-    const cardInput = page.locator('input[name*="card"], input[id*="card"], input[placeholder*="Card number"], input[autocomplete="cc-number"]').first();
-    if (await cardInput.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await cardInput.fill('4242 4242 4242 4242');
-    }
+  await page.locator('input[name="email"]').fill(testEmail);
 
-    // Fill Exp Date
-    const expInput = page.locator('input[name*="exp"], input[id*="exp"], input[placeholder*="MM / YY"], input[autocomplete="cc-exp"]').first();
-    if (await expInput.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await expInput.fill('12/28');
-    }
-
-    // Fill CVC
-    const cvcInput = page.locator('input[name*="cvc"], input[id*="cvc"], input[placeholder*="CVC"], input[autocomplete="cc-csc"]').first();
-    if (await cvcInput.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await cvcInput.fill('123');
-    }
-
-    // Submit Payment
-    const submitBtn = page.locator('button:has-text("Pay"), button[type="submit"]').first();
-    if (await submitBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await submitBtn.click();
-      console.log('[+] Submitted Dodo sandbox test payment form.');
-    }
-  } catch (err) {
-    console.warn(`[!] Dodo form automation note: ${err.message}`);
+  const manualBtn = page.locator('button:has-text("Enter address manually")');
+  if (await manualBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+    await manualBtn.click();
   }
+
+  const addressLine = page.locator('input[name="addressLine"]');
+  if (await addressLine.isVisible({ timeout: 2000 }).catch(() => false)) {
+    await addressLine.fill('123 Broadway');
+    await page.locator('input[name="city"]').fill('New York');
+    await page.locator('input[name="state"]').fill('NY');
+    await page.locator('input[name="zipCode"]').fill('10001');
+    console.log('[+] Filled billing info form.');
+  }
+
+  // Click Continue to Payment
+  const continueBtn = page.locator('button:has-text("Continue to Payment")');
+  await continueBtn.click();
+  console.log('[+] Clicked Continue to Payment.');
+  await page.waitForTimeout(3500);
+
+  // Step 2: Payment details
+  console.log('[*] Waiting for card input fields...');
+  const cardInput = page.locator('input[name="cardNumber"]');
+  await cardInput.waitFor({ state: 'visible', timeout: 20000 });
+  await cardInput.fill('4242424242424242');
+
+  await page.locator('input[name="expiryDate"]').fill('12/28');
+  await page.locator('input[name="cvc"]').fill('123');
+  console.log('[+] Filled test card details (4242 4242 4242 4242, 12/28, 123).');
+
+  // Click Pay button
+  const payBtn = page.locator('button:has-text("Pay $14.99"), button:has-text("Pay")').first();
+  await payBtn.click();
+  console.log('[+] Clicked Pay button on Dodo checkout!');
 
   // Wait for redirect back to wacpad.com/success.html
   console.log('[*] Waiting for redirect back to /success.html...');
