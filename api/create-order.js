@@ -17,7 +17,7 @@ export default async function handler(req, res) {
 
   // Retrieve amount (in paise), currency, and optional customer email/name from request
   const body = req.body || {};
-  let amount = 129900; // Default ₹1,299.00
+  let amount = 89900; // Default ₹899.00
   if (body.amount !== undefined && body.amount !== null) {
     const requestedAmount = parseInt(body.amount, 10);
     if (isNaN(requestedAmount) || requestedAmount < 100) {

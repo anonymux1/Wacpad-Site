@@ -34,7 +34,7 @@ export default async function handler(req, res) {
       email: targetEmail,
       customerName: 'Demo Artist',
       licenseKey,
-      amount: '$14.99',
+      amount: '$9.99',
       currency: 'USD',
     });
   }

@@ -25,7 +25,7 @@ Designed for **100% Zero-Cost Hosting on Cloudflare** with zero monthly recurrin
 ```
 website/
 ├── api/                            # Node.js Serverless API Handlers
-│   ├── create-checkout-session.js  # Initiates Stripe Checkout for $14.99 Lifetime
+│   ├── create-checkout-session.js  # Initiates Stripe Checkout for $9.99 Lifetime
 │   ├── get-license.js              # Verifies payment session and retrieves WP1- key
 │   ├── webhook.js                  # Stripe webhook listener (checkout.session.completed)
 │   ├── lookup-license.js           # Self-service license recovery by customer email
@@ -147,7 +147,7 @@ In your [Stripe Dashboard](https://dashboard.stripe.com/webhooks):
 
 ## 🔒 How Cryptographic Licensing Works End-to-End
 
-1. **Customer Buys Pro ($14.99 Lifetime):**
+1. **Customer Buys Pro ($9.99 Lifetime):**
    - Customer clicks **Buy Pro** on the website.
    - Redirected to Stripe Checkout (Apple Pay, Google Pay, or Card).
 2. **Instant License Generation & Database Persistence:**

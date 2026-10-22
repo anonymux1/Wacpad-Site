@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   let geoState = {
     isIndia: false,
     currency: 'USD',
-    formattedPrice: '$14.99',
+    formattedPrice: '$9.99',
     provider: 'dodo',
   };
 
@@ -41,29 +41,29 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Client-side fallback based on system timezone
       const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
       if (timeZone.includes('Calcutta') || timeZone.includes('Kolkata')) {
-        geoState = { isIndia: true, currency: 'INR', formattedPrice: '₹1,299', provider: 'razorpay' };
+        geoState = { isIndia: true, currency: 'INR', formattedPrice: '₹899', provider: 'razorpay' };
       }
     }
   } catch {
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
     if (timeZone.includes('Calcutta') || timeZone.includes('Kolkata')) {
-      geoState = { isIndia: true, currency: 'INR', formattedPrice: '₹1,299', provider: 'razorpay' };
+      geoState = { isIndia: true, currency: 'INR', formattedPrice: '₹899', provider: 'razorpay' };
     }
   }
 
   // Update DOM if visitor is in India
   if (geoState.isIndia) {
     if (proPrice) {
-      proPrice.innerHTML = `₹1,299 <span class="pricing-period">one-time lifetime</span>`;
+      proPrice.innerHTML = `₹899 <span class="pricing-period">one-time lifetime</span>`;
     }
     if (checkoutBtn) {
-      checkoutBtn.innerHTML = `⭐ Buy Pro Lifetime License — ₹1,299`;
+      checkoutBtn.innerHTML = `⭐ Buy Pro Lifetime License — ₹899`;
     }
     if (heroProBtn) {
-      heroProBtn.innerHTML = `⭐ Upgrade to Pro — ₹1,299`;
+      heroProBtn.innerHTML = `⭐ Upgrade to Pro — ₹899`;
     }
     if (navProBtn) {
-      navProBtn.innerHTML = `⭐ Get Pro — ₹1,299`;
+      navProBtn.innerHTML = `⭐ Get Pro — ₹899`;
     }
     if (proNote) {
       proNote.innerHTML = `🔒 Secure checkout via Razorpay &bull; Instant UPI QR, Cards & Netbanking`;
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              amount: 129900, // 1299.00 INR in paise
+              amount: 89900, // 899.00 INR in paise
               currency: 'INR',
               email: emailClean,
             }),

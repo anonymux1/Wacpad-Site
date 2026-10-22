@@ -97,7 +97,7 @@ test('Dodo Payments & Geolocation Integration Suite', async (t) => {
         type: 'payment.succeeded',
         data: {
           payment_id: paymentId,
-          total_amount: 1499,
+          total_amount: 999,
           currency: 'USD',
           customer: {
             email: customerEmail,
@@ -133,7 +133,7 @@ test('Dodo Payments & Geolocation Integration Suite', async (t) => {
     const data = res._getData();
     assert.equal(data.isIndia, true);
     assert.equal(data.currency, 'INR');
-    assert.equal(data.formattedPrice, '₹1,299');
+    assert.equal(data.formattedPrice, '₹899');
     assert.equal(data.provider, 'razorpay');
   });
 
@@ -149,7 +149,7 @@ test('Dodo Payments & Geolocation Integration Suite', async (t) => {
     const data = res._getData();
     assert.equal(data.isIndia, false);
     assert.equal(data.currency, 'USD');
-    assert.equal(data.formattedPrice, '$14.99');
+    assert.equal(data.formattedPrice, '$9.99');
     assert.equal(data.provider, 'dodo');
   });
 

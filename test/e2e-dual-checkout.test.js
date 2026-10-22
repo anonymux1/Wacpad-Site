@@ -74,13 +74,13 @@ test('Dual Gateway E2E Suite: Razorpay & Dodo Payments -> License -> App Pro Act
     // A. Create Order
     const { req: orderReq, res: orderRes } = mockReqRes({
       method: 'POST',
-      body: { amount: 129900, currency: 'INR', email: customerEmail },
+      body: { amount: 89900, currency: 'INR', email: customerEmail },
     });
     await createOrderHandler(orderReq, orderRes);
     assert.equal(orderRes._getStatusCode(), 200);
     const orderData = orderRes._getData();
     assert.ok(orderData.order_id, 'Should receive Razorpay order_id');
-    assert.equal(orderData.amount, 129900);
+    assert.equal(orderData.amount, 89900);
     assert.equal(orderData.currency, 'INR');
 
     // B. Simulate Customer Payment & HMAC-SHA256 Signature
@@ -162,7 +162,7 @@ test('Dual Gateway E2E Suite: Razorpay & Dodo Payments -> License -> App Pro Act
       type: 'payment.succeeded',
       data: {
         payment_id: paymentId,
-        total_amount: 1499,
+        total_amount: 999,
         currency: 'USD',
         customer: {
           email: customerEmail,

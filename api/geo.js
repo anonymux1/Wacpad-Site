@@ -14,8 +14,8 @@ export default async function handler(req, res) {
     country: country || 'US',
     isIndia,
     currency: isIndia ? 'INR' : 'USD',
-    amount: isIndia ? 1299 : 14.99,
-    formattedPrice: isIndia ? '₹1,299' : '$14.99',
+    amount: isIndia ? 899 : 9.99,
+    formattedPrice: isIndia ? '₹899' : '$9.99',
     provider: isIndia ? 'razorpay' : 'dodo',
   });
 }

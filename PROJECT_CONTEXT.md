@@ -12,7 +12,7 @@ WacPad turns an iPad and Apple Pencil into a professional, low-latency Cintiq-cl
 * **OS-Level Driverless Pointer Injection**: Emulates true Windows Pointer Device (`POINTER_TYPE_PEN`) via the Win32 Synthetic Pointer API and macOS Quartz `CGEvent` taps.
 * **Dual-Tier Commercial Model**:
   * **Free Tier**: 30-minute drawing session limit with 5-second reconnect cooldown; 3 non-intrusive banner ad slots (Google AdMob & House Ads) in a 54pt top bar; 100% functional drawing engine.
-  * **Pro Tier ($14.99 USD / ₹1,299 INR Lifetime)**: Permanent ad removal, full-screen edge-to-edge drawing canvas, unlimited session duration, multi-monitor display selection, and offline Ed25519 activation tokens for up to 3 devices (`MAX_SEATS = 3`). Dual-gateway checkout via Razorpay (India UPI/Cards) and Dodo Payments (International MoR).
+  * **Pro Tier ($9.99 USD / ₹899 INR Lifetime)**: Permanent ad removal, full-screen edge-to-edge drawing canvas, unlimited session duration, multi-monitor display selection, and offline Ed25519 activation tokens for up to 3 devices (`MAX_SEATS = 3`). Dual-gateway checkout via Razorpay (India UPI/Cards) and Dodo Payments (International MoR).
 
 ---
 
@@ -156,9 +156,9 @@ Used for control messages, latency telemetry, and fallback pointer events:
 
 ### D. Website Serverless API Endpoints (Cloudflare Pages Functions / Node.js)
 * `GET /api/geo` -> Cloudflare Edge geolocation detection returning country code and localized payment gateway preference.
-* `POST /api/create-order` -> Generates canonical ₹1,299 Razorpay order ID with price parameter tampering defense (CWE-472).
+* `POST /api/create-order` -> Generates canonical ₹899 Razorpay order ID with price parameter tampering defense (CWE-472).
 * `POST /api/verify-payment` -> Verifies Razorpay HMAC-SHA256 signature, validates customer email, issues `WP1-...` Pro license, and persists to D1.
-* `POST /api/create-dodo-checkout` -> Generates hosted Dodo Payments $14.99 USD MoR checkout session.
+* `POST /api/create-dodo-checkout` -> Generates hosted Dodo Payments $9.99 USD MoR checkout session.
 * `POST /api/webhook-dodo` -> Handles Dodo Standard Webhooks with HMAC verification (`whsec_` decoding); strictly fulfills `payment.succeeded`.
 * `POST /api/activate` -> Machine hardware activation decoupling; validates exact license key in D1/Redis and mints offline `WPACT-...` Ed25519 token.
 * `POST /api/deactivate` -> Machine deactivation endpoint releasing hardware seats.
@@ -334,14 +334,14 @@ The host server communicates with the desktop GUI via an unbounded `tokio::sync:
 WacPad employs an edge-routed dual payment gateway architecture to ensure optimal regional conversion, low fees, and complete global tax compliance:
 1. **Domestic India Routing (Razorpay)**:
    - **Trigger**: Cloudflare Edge inspects `cf-ipcountry == 'IN'`.
-   - **Pricing**: Fixed domestic pricing at ₹1,299 INR (one-time lifetime).
+   - **Pricing**: Fixed domestic pricing at ₹899 INR (one-time lifetime).
    - **Endpoints**:
      - `POST /api/create-order`: Generates a genuine Razorpay Order ID via Basic Auth against `api.razorpay.com/v1/orders`.
      - `POST /api/verify-payment`: Validates the payment signature using constant-time HMAC-SHA256(`order_id + "|" + payment_id`, `RAZORPAY_KEY_SECRET`), mints a deterministic `WP1-...` Pro lifetime key, writes to Cloudflare D1, and dispatches the fulfillment email.
    - **Supported Rails**: Instant UPI QR (GPay, PhonePe, Paytm, BHIM), RuPay/Visa/Mastercard domestic cards, and Netbanking.
 2. **International Global Routing (Dodo Payments)**:
    - **Trigger**: Non-India visitors (`cf-ipcountry != 'IN'`).
-   - **Pricing**: $14.99 USD (one-time lifetime).
+   - **Pricing**: $9.99 USD (one-time lifetime).
    - **Role**: Dodo Payments acts as the Merchant of Record (MoR), collecting and remitting global sales tax/VAT across 100+ countries with zero foreign tax nexus liability.
    - **Endpoints**:
      - `POST /api/create-dodo-checkout`: Creates a hosted checkout session (`cks_...`) for product `pdt_0NpqdjR6faKYqLtCgr6Ma`.
@@ -382,7 +382,7 @@ WacPad employs an edge-routed dual payment gateway architecture to ensure optima
 * **Guideline 2.1 (App Completeness)**: The discovery screen includes a complete 4-step setup guide and direct links to documentation so reviewers on isolated networks do not face a dead screen.
 * **Guideline 3.1.3(b) (Multiplatform Companion Neutrality)**:
   - ZERO external purchase links.
-  - ZERO pricing text (no mentions of "$14.99", "Lifetime", or currency symbols).
+  - ZERO pricing text (no mentions of "$9.99", "Lifetime", or currency symbols).
 * **Export Compliance**: `ITSAppUsesNonExemptEncryption = false` declared in `Info.plist` (uses standard exempt authentication cryptography).
 * **Icon Specifications**: Exact 1024×1024 PNG in **RGB mode without alpha channel** in `Assets.xcassets/AppIcon.appiconset`.
 

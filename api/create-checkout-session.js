@@ -59,7 +59,7 @@ export default async function handler(req, res) {
               name: 'WacPad Pro — Lifetime License',
               description: 'Zero ads, full-canvas drawing surface, unlimited continuous drawing sessions, and lifetime updates.',
             },
-            unit_amount: 1499, // $14.99 USD in cents
+            unit_amount: 999, // $9.99 USD in cents
           },
           quantity: 1,
         },

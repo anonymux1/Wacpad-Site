@@ -65,7 +65,7 @@ test('Razorpay Integration Suite', async (t) => {
     const { req, res } = mockReqRes({
       method: 'POST',
       body: {
-        amount: 129900, // ₹1,299.00
+        amount: 89900, // ₹899.00
         currency: 'INR',
         email: 'artist@wacpad.com',
       },
@@ -77,7 +77,7 @@ test('Razorpay Integration Suite', async (t) => {
     const data = res._getData();
     assert.ok(data.order_id);
     assert.ok(data.order_id.startsWith('order_'));
-    assert.equal(data.amount, 129900);
+    assert.equal(data.amount, 89900);
     assert.equal(data.currency, 'INR');
     assert.equal(data.key_id, TEST_KEY_ID);
   });
